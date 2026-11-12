@@ -1,3 +1,4 @@
+import { stateInfo } from "../config/site.mjs";
 // Guide articles. Each html() gets the rebate maths so figures stay in step with rebates.js.
 // Answer-first questions for Queensland. Each answer opens with the fact, so search engines and
 // AI assistants can quote it as it stands. The same list feeds the page and its FAQPage data.
@@ -61,6 +62,52 @@ const saFaq = ({ R, money }) => {
      `No. The Solar Standard is a private marketing service operated by TMC Innovations Pty Ltd. It publishes rebate guides and calculators and passes quote requests to one installation partner.`]
   ];
 };
+
+// Answer-first FAQ for every other state, built from the state facts in config/site.mjs.
+const STATE_NAMES = { NSW: "New South Wales", VIC: "Victoria", WA: "Western Australia", TAS: "Tasmania", ACT: "the ACT", NT: "the Northern Territory" };
+const stateFaq = (code) => ({ R, money }) => {
+  const si = stateInfo[code], name = STATE_NAMES[code], city = si.city, z = si.zone;
+  const now = R.currentWindow(), next = R.nextWindow(now) || now;
+  const year = Math.min(Math.max(R.yearOf(R.ymd()), 2026), 2030);
+  const until = R.longDate(now.to), step = R.longDate(R.addDays(now.to, 1));
+  const solar66 = R.solarStcs(6.6, z, year), solar10 = R.solarStcs(10, z, year);
+  const b10 = R.batteryStcs(10, now.factor), b135 = R.batteryStcs(13.5, now.factor), b135n = R.batteryStcs(13.5, next.factor);
+  const p = R.stcLabel;
+  const extra = si.extras[0];
+  const stateQ = /no state-wide|Federal rebates apply/.test(extra.title + extra.body) ? null : [`${extra.title.replace(/:.*$/, "")}: what you need to know`, extra.body];
+  return [
+    [`What solar and battery rebates can I get in ${name}?`,
+     `Homes in ${name} get two federal rebates: the STC solar rebate and the Cheaper Home Batteries rebate, both taken off the installer's price. ${si.short}`],
+    [`How much is the solar rebate in ${city}?`,
+     `A 6.6 kW system in ${city} earns ${solar66} STCs, about ${money(solar66 * R.stcPrice)}, and a 10 kW system earns ${solar10} STCs, about ${money(solar10 * R.stcPrice)}, if installed in ${year}, with certificates at ${p}. ${city} is STC zone ${z}.`],
+    [`How much is the battery rebate in ${name}?`,
+     `A 10 kWh battery installed by ${until} earns ${b10} STCs, about ${money(b10 * R.stcPrice)}, and a 13.5 kWh battery earns ${b135} STCs, about ${money(b135 * R.stcPrice)}, at ${p} per certificate. The federal battery rebate is the same in every state.`],
+    ["When does the battery rebate drop?",
+     `The battery rebate steps down on ${step}, from ${now.factor} to ${next.factor} STCs per kWh. On a 13.5 kWh battery that is about ${money((b135 - b135n) * R.stcPrice)} less. It keeps stepping down every 1 January and 1 July until it ends in 2030.`],
+    ...(stateQ ? [stateQ] : []),
+    ["Does the signing date or the install date set the rebate?",
+     `The install date sets the rebate, not the date you sign. A battery signed in December but installed in January gets the lower January rate, so ask the installer for an install date in writing.`],
+    ["Do I have to apply for the federal rebates?",
+     `No. You assign the certificates to your installer and they take the value off your price as a point-of-sale discount. The quote should show the STC discount as its own line.`],
+    ["Is The Solar Standard a government website?",
+     `No. The Solar Standard is a private marketing service operated by TMC Innovations Pty Ltd. It publishes rebate guides and calculators and passes quote requests to one installation partner.`]
+  ];
+};
+const stateGuides = Object.keys(STATE_NAMES).map((code) => {
+  const si = stateInfo[code], faq = stateFaq(code), place = code === "ACT" || code === "NT" ? si.city + " and the " + code : si.city + " and " + code;
+  return {
+    slug: `${si.slug}-solar-battery-rebates-faq`,
+    short: `${code} rebates FAQ`,
+    title: `${place} solar and battery rebates: questions answered`,
+    description: `Short, dated answers on the solar and battery rebates in ${STATE_NAMES[code]}, what they're worth in ${si.city} and the 1 January step-down.`,
+    sources: ["batteries"],
+    faq,
+    html: ({ R, money, L }) => `
+<p>Every answer below starts with the figure, worked out with the same rebate maths as the <a href="${L("rebate-quiz/")}">rebate quiz</a>. Certificates are valued at ${R.stcLabel}.</p>
+${faq({ R, money }).map(([q, a]) => `<h2>${q}</h2><p>${a}</p>`).join("\n")}
+<p>See the full figures on the <a href="${L("rebates/" + si.slug + "/")}">${STATE_NAMES[code].replace(/^the /, "")} rebates page</a>, or check a quote against <a href="${L("the-standard/")}">The Solar Standard checklist</a>.</p>`
+  };
+});
 
 export const guides = [
   {
@@ -172,5 +219,6 @@ ${rows.map(([k, x, y]) => `<tr><td>${k} kWh</td><td class="num mono">${money(x)}
 <p>Size the battery to your evening and overnight use, not to the biggest rebate. Because of the tiers, kWh above 14 earn 60% of the rate and above 28 only 15%. A 13.5 kWh battery currently attracts about <b class="mono">${money(r)}</b> in federal rebate.</p>
 <p>Try the <a href="${L("tools/solar-savings-calculator/")}">savings calculator</a> with and without a battery to see the difference for your bill.</p>`;
     }
-  }
+  },
+  ...stateGuides
 ];

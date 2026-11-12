@@ -132,7 +132,7 @@ page("", (L) => layout({
         <a class="tile" href="${L("tools/battery-rebate-calculator/")}"><h3>Battery rebate calculator</h3><p class="muted small">The federal tiers, the 1 January step-down and WA's top-up.</p></a>
         <a class="tile" href="${L("tools/solar-savings-calculator/")}"><h3>Solar savings calculator</h3><p class="muted small">Yearly savings and payback from your power bill.</p></a></div></div>
     <div class="stack"><div class="section-head"><p class="eyebrow">Guides</p><h2>Know what you're signing</h2></div>
-      <div class="tiles">${guides.map((g) => `<a class="tile" href="${L("guides/" + g.slug + "/")}"><h3>${esc(g.title)}</h3><p class="muted small">${esc(g.description)}</p></a>`).join("")}</div></div>
+      <div class="tiles">${guides.filter((g) => !g.faq).map((g) => `<a class="tile" href="${L("guides/" + g.slug + "/")}"><h3>${esc(g.title)}</h3><p class="muted small">${esc(g.description)}</p></a>`).join("")}</div><p><a href="${L("guides/")}">Rebate questions answered for every state</a></p></div>
   </div></section>`
 }, L));
 
@@ -198,9 +198,9 @@ for (const code of CODES) {
     ? `Queensland homeowners get two federal rebates: about ${money(R.solarStcs(6.6, 3, R.yearOf(R.ymd())) * R.stcPrice)} off a 6.6 kW solar system and about ${money(R.batteryStcs(13.5, R.currentWindow().factor) * R.stcPrice)} off a 13.5 kWh battery if installed by ${R.longDate(R.currentWindow().to)}. The state Battery Booster has closed, so there is no Queensland rebate for owner-occupiers. Landlords can get up to $3,500 towards solar through Supercharged Solar for Renters.`
     : code === "SA"
     ? `Adelaide homes get two federal rebates: about ${money(R.solarStcs(6.6, 3, R.yearOf(R.ymd())) * R.stcPrice)} off a 6.6 kW solar system and about ${money(R.batteryStcs(13.5, R.currentWindow().factor) * R.stcPrice)} off a 13.5 kWh battery if installed by ${R.longDate(R.currentWindow().to)}. The state Home Battery Scheme has closed. Some households can add a REPS incentive for joining an approved virtual power plant, set by the provider and paid after connection.`
-    : "";
+    : `Homes in ${["ACT", "NT"].includes(code) ? "the " : ""}${R.states[code]} get two federal rebates: about ${money(R.solarStcs(6.6, s.zone, R.yearOf(R.ymd())) * R.stcPrice)} off a 6.6 kW solar system in ${s.city} and about ${money(R.batteryStcs(13.5, R.currentWindow().factor) * R.stcPrice)} off a 13.5 kWh battery if installed by ${R.longDate(R.currentWindow().to)}. ${s.short}`;
   const stateSources = code === "QLD" ? ["batteries", "qldBooster", "qldRenters", "qldRentersRules"] : code === "SA" ? ["batteries", "saReps"] : ["batteries"];
-  const faqLink = { QLD: ["guides/queensland-solar-battery-rebates-faq/", "Queensland solar and battery rebates, questions answered"], SA: ["guides/adelaide-solar-battery-rebates-faq/", "Adelaide and SA solar and battery rebates, questions answered"] }[code];
+  const faqLink = { QLD: ["guides/queensland-solar-battery-rebates-faq/", "Queensland solar and battery rebates, questions answered"], SA: ["guides/adelaide-solar-battery-rebates-faq/", "Adelaide and SA solar and battery rebates, questions answered"] }[code] || [`guides/${s.slug}-solar-battery-rebates-faq/`, `${R.states[code]} solar and battery rebates, questions answered`];
   page(`rebates/${s.slug}/`, (L) => layout({
     path: `rebates/${s.slug}/`, jsonld,
     title: `${R.states[code]} Solar & Battery Rebates | ${brand.name}`,

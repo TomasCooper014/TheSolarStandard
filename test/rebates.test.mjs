@@ -46,5 +46,9 @@ test("Adelaide and SEQ postcodes route to XF Energy", async () => {
   assert.equal(routeFor("5000").id, "adelaide");
   assert.equal(routeFor("5112").retailer, "XF Energy");
   assert.equal(routeFor("4152").id, "seq");
-  assert.equal(routeFor("5700").id, "unassigned");
+  assert.equal(routeFor("5700").id, "sa");
+  for (const [pc, id] of [["2000", "nsw"], ["2600", "act"], ["0800", "nt"], ["3000", "vic"], ["4870", "qld"], ["6000", "wa"], ["7000", "tas"]]) {
+    assert.equal(routeFor(pc).id, id, pc);
+    assert.equal(routeFor(pc).retailer, "XF Energy");
+  }
 });

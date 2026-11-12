@@ -14,7 +14,7 @@ Brand, domain and contact details live in `config/site.mjs`. Change them there a
 | Rebate maths (STCs, zones, battery tiers, VIC and WA top-ups) | `src/assets/rebates.js` |
 | Pages: home, quiz, 8 ad landing pages, 8 state rebate pages, 3 calculators, 4 guides, legal | `build.mjs`, `src/guides.mjs` |
 | Brand, contact details, state copy | `config/site.mjs` |
-| Which retailer gets which postcodes | `config/routing.mjs` |
+| Which installer holds which territory (every state, XF Energy for now) | `config/routing.mjs` |
 | Pipedrive lead owner, field keys and option IDs | `config/pipedrive.mjs` |
 | Lead intake: checks, grading, Pipedrive, CRM webhook, email, Meta CAPI | `netlify/functions/lead.mjs`, `netlify/lib/` |
 | Thank-you page follow-up (roof, storeys, phase, call time) | `netlify/functions/lead-update.mjs` |

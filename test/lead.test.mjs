@@ -137,5 +137,5 @@ test("helpers", () => {
   assert.equal(channelOf({ ref: "d64a0095-5517-4738-ac69-2fc955faf899" }), "Direct");
   assert.equal(channelOf({}), "Direct");
   assert.equal(grade({ ownership: "owner-occupier", bill: "lt300", timeframe: "researching" }), "C");
-  assert.equal(routeFor("3000").id, "unassigned");
+  assert.equal(routeFor("3000").id, "vic");
 });
