@@ -84,6 +84,12 @@ All rebate numbers live in `src/assets/rebates.js` and `config/site.mjs`, checke
   QLD Supercharged Solar for Renters (landlords only, $2,500 to $3,500 by system size) are quantified.
   NSW, SA and ACT programs are described without amounts on purpose.
 
+## Market prices
+
+`marketPrices` in `config/site.mjs` holds the typical installed price ranges (after the federal rebate) shown on the
+battery price and solar cost guides, with their sources in `officialSources`. Re-check them every quarter and after
+each rebate step-down.
+
 ## Search and AI visibility
 
 - Every indexable page carries Organization and WebSite structured data. Rebate pages add FAQPage and breadcrumbs, and

@@ -68,7 +68,7 @@ function layout({ path, title, description, body, landing = false, noindex = fal
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="${esc(description)}">${verify}
 ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${canonical}">`}
-<meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
+<meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU"><meta property="og:url" content="${brand.domain}/${path}"><meta property="og:site_name" content="${esc(brand.name)}"><meta property="og:image" content="${brand.domain}/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@500;600;700&display=swap">
 <link rel="stylesheet" href="${L.root}assets/site.css">
@@ -110,7 +110,7 @@ function exampleTable(code) {
 
 // ---------- pages ----------
 page("", (L) => layout({
-  path: "", title: `${brand.name} | Solar and Battery Rebate Check`, description: brand.tagline,
+  path: "", title: `Solar & Battery Rebates ${R.yearOf(R.ymd())} by Postcode | ${brand.name}`, description: brand.tagline,
   body: `<section class="hero"><div class="wrap"><div class="hero-copy">
     ${countdown}
     <h1>Hold your solar quote to a higher standard</h1>
@@ -173,7 +173,7 @@ function landingFaq(code) {
 }
 
 page("rebates/", (L) => layout({
-  path: "rebates/", title: `Solar & Battery Rebates by State | ${brand.name}`, description: "Federal STC and battery rebates plus each state's top-ups, with worked examples by system size.",
+  path: "rebates/", title: `Solar & Battery Rebates ${R.yearOf(R.ymd())} by State | ${brand.name}`, description: "Federal STC and battery rebates plus each state's top-ups, with worked examples by system size.",
   body: `<div class="wrap"><div class="article"><div class="article-body">
     <p class="crumbs"><a href="${L("")}">Home</a> / Rebates</p>
     <h1>Solar and battery rebates in ${new Date().getFullYear()}</h1>
@@ -203,7 +203,7 @@ for (const code of CODES) {
   const faqLink = { QLD: ["guides/queensland-solar-battery-rebates-faq/", "Queensland solar and battery rebates, questions answered"], SA: ["guides/adelaide-solar-battery-rebates-faq/", "Adelaide and SA solar and battery rebates, questions answered"] }[code] || [`guides/${s.slug}-solar-battery-rebates-faq/`, `${R.states[code]} solar and battery rebates, questions answered`];
   page(`rebates/${s.slug}/`, (L) => layout({
     path: `rebates/${s.slug}/`, jsonld,
-    title: `${R.states[code]} Solar & Battery Rebates | ${brand.name}`,
+    title: `${R.states[code]} Solar & Battery Rebates ${R.yearOf(R.ymd())} | ${brand.name}`,
     description: `Solar and battery rebates available in ${R.states[code]}, with worked examples for common system sizes and the 1 January 2027 battery step-down.`,
     body: `<div class="wrap"><div class="article"><div class="article-body">
       <p class="crumbs"><a href="${L("")}">Home</a> / <a href="${L("rebates/")}">Rebates</a> / ${code}</p>
@@ -218,6 +218,7 @@ for (const code of CODES) {
       <div class="callout">The rebate is set by the <b>install date</b>, not the date you sign. A battery signed in December but installed in January gets the lower 2027 rate.</div>
       <h2>Common questions</h2><div class="faq">${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div>
       ${faqLink ? `<p>More detail: <a href="${L(faqLink[0])}">${faqLink[1]}</a>.</p>` : ""}
+      <h2>Related guides</h2><ul><li><a href="${L("guides/solar-battery-price/")}">Solar battery prices in 2026</a></li><li><a href="${L("guides/solar-panel-cost/")}">How much solar panels cost in 2026</a></li><li><a href="${L("guides/how-to-choose-a-home-battery/")}">How to choose a home battery</a></li><li><a href="${L("guides/solar-installation-process/")}">Installation, step by step</a></li></ul>
       ${sourcesBlock(stateSources)}
       <p class="small muted">Figures as at ${R.asAt}, with certificates valued at ${R.stcLabel}. Certificate values move with the market. Check current program rules before you sign.</p>
     </div><aside class="article-aside"><p class="eyebrow">Your rebate</p>${quizCard(`data-state="${code}"`)}</aside></div></div>`
@@ -285,7 +286,7 @@ for (const g of guides) {
     crumbsLd([["Home", ""], ["Guides", "guides/"], [g.short, `guides/${g.slug}/`]])
   ] });
   page(`guides/${g.slug}/`, (L) => layout({
-    path: `guides/${g.slug}/`, title: `${g.title} | ${brand.name}`, description: g.description, jsonld: gl,
+    path: `guides/${g.slug}/`, title: `${g.seoTitle || g.title} | ${brand.name}`, description: g.description, jsonld: gl,
     body: `<div class="wrap"><div class="article"><article class="article-body">
       <p class="crumbs"><a href="${L("")}">Home</a> / <a href="${L("guides/")}">Guides</a></p>
       <h1>${esc(g.title)}</h1>${reviewedLine()}${g.html({ R, money, L })}${sourcesBlock(g.sources)}

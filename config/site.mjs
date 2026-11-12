@@ -25,6 +25,23 @@ export const brand = {
   published: "2026-10-29"              // first publish date of the guides
 };
 
+// Typical installed prices AFTER the federal rebate, as ranges the market sources broadly agree on.
+// Shown on the cost guides with their sources. Re-check every quarter and when the rebate steps down.
+export const marketPrices = {
+  asAt: "November 2026",
+  solar: [
+    { kw: 6.6, low: 5000, high: 8000 },
+    { kw: 10, low: 8000, high: 12000 }
+  ],
+  batteryPerKwh: { low: 800, high: 1000 },            // installed with solar, after the federal rebate
+  batteryRetrofitPerKwh: { low: 950, high: 1350 },    // added to an existing solar system
+  battery: [
+    { kwh: 5, low: 4000, high: 7000 },
+    { kwh: 10, low: 8000, high: 10000 },
+    { kwh: 13.5, low: 10000, high: 13000 }
+  ]
+};
+
 // Official pages the rebate figures are checked against. Shown as "Sources" on guides and
 // rebate pages, and listed in llms.txt, so answers can be traced back.
 export const officialSources = {
@@ -32,6 +49,12 @@ export const officialSources = {
   qldRenters: { title: "Queensland Government: Supercharged Solar for Renters", url: "https://www.qld.gov.au/solar-for-renters" },
   qldRentersRules: { title: "Queensland Treasury: Supercharged Solar for Renters eligibility", url: "https://www.treasury.qld.gov.au/policies-and-programs/energy/supercharged-solar-for-renters/" },
   saReps: { title: "SA Government: Retailer Energy Productivity Scheme (REPS)", url: "https://www.energymining.sa.gov.au/consumers/energy-advisory-service/energy-saving-rebates" },
+  // Market price sources for the cost guides (not official; checked 13 November 2026)
+  priceGridly: { title: "Gridly: Solar panel cost Australia 2026", url: "https://www.gridly.com.au/blog/solar-panel-cost-australia-2026" },
+  priceSolarx: { title: "SolarX Energy: Solar installation cost in Australia, 2026 homeowner guide", url: "https://solarxenergy.com.au/solar-installation-cost-in-australia-2026-homeowner-guide/" },
+  priceSolax: { title: "SolaX: Solar battery cost in Australia 2026 (June 2026)", url: "https://au.solaxpower.com/blogs/solar-battery-cost-australia-2026-complete-price-guide.html" },
+  priceSolarCalc: { title: "SolarCalculator: Solar battery price, savings and payback (May 2026)", url: "https://solarcalculator.com.au/battery-storage/price/" },
+  priceSolarNerds: { title: "Solar Nerds: How much does a mid-tier battery cost? (mid-2026)", url: "https://solarnerds.com.au/your-solar-journey/how-much-do-solar-and-batteries-cost/how-much-does-a-mid-tier-battery-cost" },
   qldBooster: { title: "Queensland Government: Battery Booster (closed)", url: "https://qld.gov.au/housing/home-modifications-energy-savings/battery-booster-program" }
 };
 

@@ -1,4 +1,4 @@
-import { stateInfo } from "../config/site.mjs";
+import { stateInfo, marketPrices } from "../config/site.mjs";
 // Guide articles. Each html() gets the rebate maths so figures stay in step with rebates.js.
 // Answer-first questions for Queensland. Each answer opens with the fact, so search engines and
 // AI assistants can quote it as it stands. The same list feeds the page and its FAQPage data.
@@ -99,6 +99,7 @@ const stateGuides = Object.keys(STATE_NAMES).map((code) => {
     slug: `${si.slug}-solar-battery-rebates-faq`,
     short: `${code} rebates FAQ`,
     title: `${place} solar and battery rebates: questions answered`,
+    seoTitle: `${code} Solar & Battery Rebates 2026: FAQ`,
     description: `Short, dated answers on the solar and battery rebates in ${STATE_NAMES[code]}, what they're worth in ${si.city} and the 1 January step-down.`,
     sources: ["batteries"],
     faq,
@@ -111,9 +112,119 @@ ${faq({ R, money }).map(([q, a]) => `<h2>${q}</h2><p>${a}</p>`).join("\n")}
 
 export const guides = [
   {
+    slug: "solar-battery-price",
+    short: "Battery prices",
+    title: "Solar battery prices in 2026: what you'll pay after the rebate",
+    seoTitle: "Solar Battery Prices 2026: Cost After the Rebate",
+    description: "Typical installed prices for 5, 10 and 13.5 kWh home batteries after the federal rebate, what changes on 1 January and how to compare quotes.",
+    sources: ["priceSolax", "priceSolarCalc", "priceSolarNerds", "batteries"],
+    html: ({ R, money, L }) => {
+      const now = R.currentWindow(), next = R.nextWindow(now) || now, step = R.longDate(R.addDays(now.to, 1));
+      const bp = marketPrices.batteryPerKwh, rp = marketPrices.batteryRetrofitPerKwh;
+      const rows = marketPrices.battery.map((b) => `<tr><td>${b.kwh} kWh</td><td>${money(R.batteryStcs(b.kwh, now.factor) * R.stcPrice)}</td><td>${money(b.low)} to ${money(b.high)}</td><td>${money((R.batteryStcs(b.kwh, now.factor) - R.batteryStcs(b.kwh, next.factor)) * R.stcPrice)}</td></tr>`).join("");
+      return `
+<p class="lead-sm"><b>Short answer:</b> most Australian homes pay about ${money(bp.low)} to ${money(bp.high)} per usable kWh for a battery installed with solar, after the federal rebate. A 10 kWh battery usually lands around ${money(marketPrices.battery[1].low)} to ${money(marketPrices.battery[1].high)}. Adding a battery to an existing solar system tends to cost more per kWh, about ${money(rp.low)} to ${money(rp.high)}.</p>
+<h2>Typical battery prices after the federal rebate</h2>
+<div class="table-wrap"><table><thead><tr><th>Usable size</th><th>Federal rebate if installed by ${R.longDate(now.to)}</th><th>Typical installed price after the rebate</th><th>Rebate lost from ${step}</th></tr></thead><tbody>${rows}</tbody></table></div>
+<p class="small muted">Prices are market ranges as at ${marketPrices.asAt} from the sources below, including installation and GST. Rebates use ${R.stcLabel} per certificate. Your quote depends on the brand, your switchboard and whether you want blackout backup.</p>
+<h2>What happens to prices on ${step}</h2>
+<p>The federal rebate drops from ${now.factor} to ${next.factor} certificates per kWh, so the same battery costs more by the amount in the last column. The rate is set by the install date, so a battery signed now but installed after ${R.longDate(now.to)} gets the lower rebate. See <a href="${L("guides/battery-rebate-2027/")}">the battery rebate change, explained</a>.</p>
+<h2>What moves the price</h2>
+<ul>
+<li><b>With solar or added later.</b> Installing the battery with new panels shares one inverter and one install day. Adding it to existing solar often needs a second inverter or a hybrid swap.</li>
+<li><b>Size.</b> The cost per kWh falls as batteries get bigger, but the rebate is tiered: the first 14 kWh gets the full rate, 14 to 28 kWh gets 60% and 28 to 50 kWh gets 15%.</li>
+<li><b>Backup.</b> Whole-home or essential-circuit backup during a blackout adds hardware and wiring. Not every battery offers it.</li>
+<li><b>Switchboard and site.</b> An old switchboard, a long cable run or a battery that has to go inside can add hundreds to thousands of dollars.</li>
+<li><b>Brand and warranty.</b> Compare warranty years and the guaranteed energy throughput, not just the badge.</li>
+</ul>
+<h2>How to compare two battery quotes</h2>
+<p>Divide the price after the rebate by the <b>usable</b> kWh, check that the federal rebate is its own line, and make sure the quote names the battery model, the inverter and whether backup is included. Then check it against <a href="${L("guides/how-to-read-a-solar-quote/")}">how to read a solar quote</a>, or <a href="${L("rebate-quiz/")}">see the rebate for your postcode</a>.</p>`;
+    }
+  },
+  {
+    slug: "solar-panel-cost",
+    short: "Solar panel cost",
+    title: "How much do solar panels cost in 2026?",
+    seoTitle: "Solar Panel Cost 2026: 6.6 kW and 10 kW Prices",
+    description: "Typical installed prices for 6.6 kW and 10 kW solar systems after the STC rebate, the rebate in each capital city and what changes on 1 January.",
+    sources: ["priceGridly", "priceSolarx"],
+    html: ({ R, money, L }) => {
+      const year = Math.min(Math.max(R.yearOf(R.ymd()), 2026), 2030), next = Math.min(year + 1, 2030);
+      const sizes = marketPrices.solar.map((s) => `<tr><td>${s.kw} kW</td><td>${R.solarStcs(s.kw, 3, year)} STCs, ${money(R.solarStcs(s.kw, 3, year) * R.stcPrice)}</td><td>${money(s.low)} to ${money(s.high)}</td></tr>`).join("");
+      const cities = [["Darwin", 2], ["Brisbane", 3], ["Sydney", 3], ["Perth", 3], ["Adelaide", 3], ["Canberra", 3], ["Melbourne", 4], ["Hobart", 4]];
+      const cityRows = cities.map(([c, z]) => `<tr><td>${c}</td><td>${z}</td><td>${money(R.solarStcs(6.6, z, year) * R.stcPrice)}</td><td>${money(R.solarStcs(6.6, z, next) * R.stcPrice)}</td></tr>`).join("");
+      return `
+<p class="lead-sm"><b>Short answer:</b> a 6.6 kW solar system usually costs about ${money(marketPrices.solar[0].low)} to ${money(marketPrices.solar[0].high)} installed in ${year}, after the federal STC rebate. A 10 kW system usually costs about ${money(marketPrices.solar[1].low)} to ${money(marketPrices.solar[1].high)}. The rebate is already taken off those prices.</p>
+<h2>Typical solar prices after the rebate</h2>
+<div class="table-wrap"><table><thead><tr><th>System</th><th>STC rebate in zone 3, installed in ${year}</th><th>Typical installed price after the rebate</th></tr></thead><tbody>${sizes}</tbody></table></div>
+<p class="small muted">Market ranges as at ${marketPrices.asAt} from the sources below, for standard-tier panels and a string inverter, including GST. Rebates use ${R.stcLabel} per certificate.</p>
+<h2>The solar rebate in each capital city</h2>
+<p>The STC rebate depends on how much sun your area gets (its STC zone) and how many years are left in the scheme. Here's the rebate on a 6.6 kW system.</p>
+<div class="table-wrap"><table><thead><tr><th>City</th><th>STC zone</th><th>Rebate if installed in ${year}</th><th>Rebate if installed in ${next}</th></tr></thead><tbody>${cityRows}</tbody></table></div>
+<p>The solar rebate drops each 1 January as the scheme counts down to 2030. Find your exact figure with the <a href="${L("tools/stc-calculator/")}">STC calculator</a>.</p>
+<h2>What moves the price</h2>
+<ul>
+<li><b>Panels and inverter.</b> Premium panels, microinverters or optimisers can add 20 to 30% over a standard system.</li>
+<li><b>Your roof.</b> Two-storey, steep, tiled or multi-direction roofs take longer to install.</li>
+<li><b>Switchboard and meter.</b> An old switchboard may need upgrading, and your retailer arranges a solar-ready meter.</li>
+<li><b>Network rules.</b> Your electricity network may limit how much you can export, which changes the best system size.</li>
+</ul>
+<h2>Is a bigger system worth it?</h2>
+<p>Extra panels are cheap per kW, but exported power earns a low feed-in tariff. Size the system to your daytime use plus any battery you plan to charge. Try the <a href="${L("tools/solar-savings-calculator/")}">savings calculator</a> or <a href="${L("rebate-quiz/")}">see the rebate for your postcode</a>.</p>`;
+    }
+  },
+  {
+    slug: "solar-installation-process",
+    short: "Installation, step by step",
+    title: "Solar and battery installation: what happens from quote to switch-on",
+    seoTitle: "Solar & Battery Installation: Step by Step",
+    description: "The steps from first quote to switch-on for solar panels and home batteries: site check, network approval, install day, inspection and the meter.",
+    sources: ["batteries"],
+    html: ({ R, money, L }) => `
+<p class="lead-sm"><b>Short answer:</b> most home solar and battery jobs take two to six weeks from signing to switch-on. The install itself is usually one day for solar and about half a day to a day for a battery. Most of the wait is network approval and the meter change.</p>
+<h2>1. Quote and site check</h2>
+<p>The installer checks your bills, roof, shading and switchboard, often by satellite first and in person before the install. You should get a written, itemised quote naming the panels, inverter and battery, with the federal rebate as its own line. See <a href="${L("guides/how-to-read-a-solar-quote/")}">how to read a solar quote</a>.</p>
+<h2>2. Signing and cooling-off</h2>
+<p>If the sale was unsolicited, such as a door-knock or a cold call, Australian Consumer Law gives you 10 business days to cancel. Either way, read the payment terms and warranty before you sign, and don't pay a large deposit up front.</p>
+<h2>3. Design and network approval</h2>
+<p>The installer applies to your electricity network (for example Energex or Ergon in Queensland, Ausgrid in Sydney, SA Power Networks in South Australia) for approval to connect. The network can limit how much power you export, which may change the design.</p>
+<h2>4. Install day</h2>
+<p>A Solar Accreditation Australia (SAA) accredited installer has to design and install the system for it to earn the federal rebate, using panels, inverters and batteries on the Clean Energy Council approved lists. Batteries are installed to AS/NZS 5139, which sets where they can go and the clearances around them.</p>
+<h2>5. Inspection and paperwork</h2>
+<p>The electrician issues a certificate of electrical safety or compliance (the name varies by state), and some states inspect a sample of jobs. The installer creates the STCs for the rebate. You sign to assign them, and they come off your price.</p>
+<h2>6. Meter and switch-on</h2>
+<p>Your retailer arranges a meter that records exported power, which can take a few weeks. Once it's in, the system can export and you start earning a feed-in tariff. If you're joining a virtual power plant, that's set up after switch-on.</p>
+<div class="callout">The rebate is set by the <b>install date</b>, not the signing date. If you're aiming to install before the rebate steps down on ${R.longDate(R.addDays(R.currentWindow().to, 1))}, ask for the install date in writing.</div>
+<p><a href="${L("rebate-quiz/")}">See the rebate for your postcode</a> before you get quotes.</p>`
+  },
+  {
+    slug: "how-to-choose-a-home-battery",
+    short: "Choosing a battery",
+    title: "How to choose a home battery: size, warranty and backup",
+    seoTitle: "How to Choose a Home Battery (2026 Guide)",
+    description: "How to size a home battery to your evening use, compare warranties, decide on blackout backup and keep the federal rebate.",
+    sources: ["batteries"],
+    html: ({ R, money, L }) => `
+<p class="lead-sm"><b>Short answer:</b> size the battery to the power you use after dark, not to the biggest rebate. Compare usable capacity, the warranty's years and energy throughput, and whether it can keep your lights on in a blackout. To get the federal rebate it must be an approved product, installed by an accredited installer.</p>
+<h2>1. Size it to your evenings</h2>
+<p>Look at your bill or usage app for the kWh you use from late afternoon to morning. A battery around that size covers your evenings; much bigger only helps if you'll export to a virtual power plant or plan for an EV. The federal rebate pays the full rate on the first 14 kWh, 60% from 14 to 28 kWh and 15% from 28 to 50 kWh, so going past 14 kWh earns less rebate per kWh.</p>
+<h2>2. Compare usable capacity</h2>
+<p>Batteries list total and usable capacity. Compare usable kWh, because that's what you can actually draw and what the rebate is based on.</p>
+<h2>3. Read the warranty properly</h2>
+<p>Check the warranty years, the minimum capacity it guarantees at the end (often 60 to 70%), and the energy throughput limit. A battery that cycles daily can reach its throughput cap before its years are up.</p>
+<h2>4. Decide on blackout backup</h2>
+<p>Not every battery keeps the power on in an outage. Some back up the whole home, others only chosen circuits, and some need extra hardware. If backup matters, ask for it in writing on the quote.</p>
+<h2>5. Check it works with your solar</h2>
+<p>With new solar, a hybrid inverter runs both panels and battery. With existing solar, an AC-coupled battery with its own inverter is often simpler than replacing a working inverter.</p>
+<h2>6. Keep the rebate</h2>
+<p>The battery must be on the Clean Energy Council approved list and installed by a Solar Accreditation Australia accredited installer to AS/NZS 5139. State extras such as WA's battery scheme, NSW's VPP incentive and South Australia's REPS incentive may need the battery to join a virtual power plant. See <a href="${L("rebates/")}">rebates by state</a>.</p>
+<p>Compare prices with <a href="${L("guides/solar-battery-price/")}">solar battery prices in 2026</a>, or <a href="${L("rebate-quiz/")}">see your rebate</a>.</p>`
+  },
+  {
     slug: "adelaide-solar-battery-rebates-faq",
     short: "Adelaide rebates FAQ",
     title: "Adelaide and SA solar and battery rebates: questions answered",
+    seoTitle: "SA Solar & Battery Rebates 2026: FAQ",
     description: "Short, dated answers on the federal solar and battery rebates in Adelaide, the 1 January step-down and the REPS VPP incentive.",
     sources: ["batteries", "saReps"],
     faq: saFaq,
@@ -126,6 +237,7 @@ ${saFaq({ R, money }).map(([q, a]) => `<h2>${q}</h2><p>${a}</p>`).join("\n")}
     slug: "queensland-solar-battery-rebates-faq",
     short: "QLD rebates FAQ",
     title: "Queensland solar and battery rebates: questions answered",
+    seoTitle: "QLD Solar & Battery Rebates 2026: FAQ",
     description: "Short, dated answers on the federal solar and battery rebates in Queensland, the 1 January step-down and the landlord rebate.",
     sources: ["batteries", "qldBooster", "qldRenters", "qldRentersRules"],
     faq: qldFaq,
