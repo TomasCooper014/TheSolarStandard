@@ -2,7 +2,7 @@
 // copy with relative links that works anywhere (used for the shareable preview).
 import { mkdirSync, writeFileSync, readFileSync, rmSync, cpSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { brand, stateInfo, yieldPerKw } from "./config/site.mjs";
+import { brand, stateInfo, yieldPerKw, officialSources } from "./config/site.mjs";
 import "./src/assets/rebates.js";
 import { guides } from "./src/guides.mjs";
 
@@ -35,6 +35,16 @@ function makeLink(fromPath) {
 const logo = `<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="8" fill="var(--teal)"/><circle cx="17" cy="15.5" r="6.5" fill="var(--sun)"/><path d="M6 22.5h22" stroke="var(--teal-ink)" stroke-width="2.4" stroke-linecap="round"/><path d="M9 22.5v3.5M13 22.5v2M17 22.5v3.5M21 22.5v2M25 22.5v3.5" stroke="var(--teal-ink)" stroke-width="1.6" stroke-linecap="round"/></svg>`;
 const wordmark = `<span class="wordmark"><span class="wm-the">The</span> Solar Standard</span>`;
 
+// Structured data shared by every indexable page, so search engines and AI answers know who runs the site
+const ld = (obj) => `<script type="application/ld+json">${JSON.stringify(obj).replace(/</g, "\\u003c")}</script>`;
+const ORG = { "@type": "Organization", "@id": brand.domain + "/#org", name: brand.name, legalName: brand.legalName, url: brand.domain + "/", email: brand.email, telephone: brand.phone, taxID: "ABN " + brand.abn, areaServed: "AU", description: "A solar marketing service that publishes rebate guides and calculators and passes quote requests to one installation partner. Not a government body." };
+const SITE_LD = ld({ "@context": "https://schema.org", "@graph": [ORG, { "@type": "WebSite", "@id": brand.domain + "/#site", url: brand.domain + "/", name: brand.name, publisher: { "@id": brand.domain + "/#org" }, inLanguage: "en-AU" }] });
+const MODIFIED = R.asAtYmd; // when the figures were last checked, not the build date
+const reviewer = { "@type": "Person", name: brand.reviewer.name, jobTitle: brand.reviewer.role, worksFor: { "@id": brand.domain + "/#org" } };
+const reviewedLine = () => `<p class="small muted">Reviewed by ${esc(brand.reviewer.name)}, ${esc(brand.reviewer.role)}. Updated ${R.asAt}.</p>`;
+const sourcesBlock = (keys) => keys && keys.length ? `<h2>Sources</h2><ul class="small">${keys.map((k) => officialSources[k]).map((x) => `<li><a href="${x.url}" rel="noopener" target="_blank">${esc(x.title)}</a></li>`).join("")}</ul>` : "";
+const crumbsLd = (items) => ({ "@type": "BreadcrumbList", itemListElement: items.map(([name, path], i) => ({ "@type": "ListItem", position: i + 1, name, item: brand.domain + "/" + path })) });
+
 function layout({ path, title, description, body, landing = false, noindex = false, jsonld = "" }, L) {
   const canonical = brand.domain + "/" + path;
   const pixel = brand.metaPixelId && !PREVIEW ? `<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${brand.metaPixelId}');fbq('track','PageView');</script>` : "";
@@ -62,7 +72,7 @@ ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" hr
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@500;600;700&display=swap">
 <link rel="stylesheet" href="${L.root}assets/site.css">
-${jsonld}${pixel}${gtag}
+${noindex ? "" : SITE_LD}${jsonld}${pixel}${gtag}
 </head><body${landing ? ' class="lp"' : ""}>
 ${head}
 <main id="main">${body}</main>
@@ -95,7 +105,7 @@ function exampleTable(code) {
   const ex = examples(code);
   return `<div class="table-wrap"><table><caption class="hp">Federal rebate by system size</caption><thead><tr><th>System</th><th class="num">Certificates</th><th class="num">Rebate if installed in 2026</th><th class="num">Battery, Jan to Jun 2027</th></tr></thead><tbody>
   ${ex.rows.map((r) => `<tr><td>${r[0]}</td><td class="num mono">${r[1]}</td><td class="num mono">${money(r[2])}</td><td class="num mono">${r[3] != null ? money(r[3]) : "<span class='muted'>steps down 1 Jan</span>"}</td></tr>`).join("")}
-  </tbody></table></div><p class="small muted">STC zone ${ex.zone}, $${R.stcPrice} per certificate. Solar uses a ${R.deeming[2026]}-year deeming period for 2026 installs (${R.deeming[2027]} years in 2027).</p>`;
+  </tbody></table></div><p class="small muted">STC zone ${ex.zone}, ${R.stcLabel} per certificate. Solar uses a ${R.deeming[2026]}-year deeming period for 2026 installs (${R.deeming[2027]} years in 2027).</p>`;
 }
 
 // ---------- pages ----------
@@ -177,10 +187,17 @@ for (const code of CODES) {
   const s = stateInfo[code];
   const faq = [
     [`What rebates can I get in ${R.states[code]}?`, `The federal solar rebate (STCs) and the federal Cheaper Home Batteries rebate apply everywhere. ${s.extras.map((e) => e.title + ": " + e.body).join(" ")}`],
-    ["When does the battery rebate drop?", `The battery rebate steps down on ${R.batteryNextStep}, from ${R.batteryWindows[0].factor} to ${R.batteryWindows[1].factor} certificates per kWh, and keeps stepping down every six months until the end of 2030.`],
+    ["When does the battery rebate drop?", `The battery rebate steps down on ${nextStep}, from ${R.currentWindow().factor} to ${(R.nextWindow(R.currentWindow()) || R.currentWindow()).factor} certificates per kWh, and keeps stepping down every six months until the end of 2030. The install date sets the rate, not the signing date.`],
     ["Who claims the rebate?", "Your installer. You assign the certificates to them and they take the value off your price. State rebates have their own application, which the installer guides you through."]
   ];
-  const jsonld = `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) })}</script>`;
+  const jsonld = ld({ "@context": "https://schema.org", "@graph": [
+    { "@type": "FAQPage", mainEntity: faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })), dateModified: MODIFIED, reviewedBy: reviewer, publisher: { "@id": brand.domain + "/#org" } },
+    crumbsLd([["Home", ""], ["Rebates", "rebates/"], [R.states[code], `rebates/${s.slug}/`]])
+  ] });
+  const summary = code === "QLD"
+    ? `Queensland homeowners get two federal rebates: about ${money(R.solarStcs(6.6, 3, R.yearOf(R.ymd())) * R.stcPrice)} off a 6.6 kW solar system and about ${money(R.batteryStcs(13.5, R.currentWindow().factor) * R.stcPrice)} off a 13.5 kWh battery if installed by ${R.longDate(R.currentWindow().to)}. The state Battery Booster has closed, so there is no Queensland rebate for owner-occupiers. Landlords can get up to $3,500 towards solar through Supercharged Solar for Renters.`
+    : "";
+  const stateSources = code === "QLD" ? ["batteries", "qldBooster", "qldRenters", "qldRentersRules"] : ["batteries"];
   page(`rebates/${s.slug}/`, (L) => layout({
     path: `rebates/${s.slug}/`, jsonld,
     title: `${R.states[code]} Solar & Battery Rebates | ${brand.name}`,
@@ -188,6 +205,8 @@ for (const code of CODES) {
     body: `<div class="wrap"><div class="article"><div class="article-body">
       <p class="crumbs"><a href="${L("")}">Home</a> / <a href="${L("rebates/")}">Rebates</a> / ${code}</p>
       <h1>Solar and battery rebates in ${R.states[code]}</h1>
+      ${summary ? `<p class="lead-sm"><b>Short answer:</b> ${esc(summary)}</p>` : ""}
+      ${reviewedLine()}
       <p>${esc(s.note)}</p>
       <h2>Federal rebates on common systems</h2>${exampleTable(code)}
       ${s.extras.map((e) => `<h2>${esc(e.title)}</h2><p>${esc(e.body)}</p>`).join("")}
@@ -195,7 +214,9 @@ for (const code of CODES) {
       <p>Since 1 May 2026 the first 14 kWh of usable capacity gets the full rate, each kWh from 14 to 28 gets 60%, and each kWh from 28 to 50 gets 15%. Batteries under 5 kWh aren't eligible. A battery sized to your evening use usually gets the best rebate per dollar.</p>
       <div class="callout">The rebate is set by the <b>install date</b>, not the date you sign. A battery signed in December but installed in January gets the lower 2027 rate.</div>
       <h2>Common questions</h2><div class="faq">${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div>
-      <p class="small muted">Figures as at ${R.asAt}. Certificate values move with the market. Check current program rules before you sign.</p>
+      ${code === "QLD" ? `<p>More detail: <a href="${L("guides/queensland-solar-battery-rebates-faq/")}">Queensland solar and battery rebates, questions answered</a>.</p>` : ""}
+      ${sourcesBlock(stateSources)}
+      <p class="small muted">Figures as at ${R.asAt}, with certificates valued at ${R.stcLabel}. Certificate values move with the market. Check current program rules before you sign.</p>
     </div><aside class="article-aside"><p class="eyebrow">Your rebate</p>${quizCard(`data-state="${code}"`)}</aside></div></div>`
   }, L));
 }
@@ -218,7 +239,7 @@ page("tools/stc-calculator/", (L) => layout({
     <p class="small muted">Sample values loaded: a 6.6 kW system in Brisbane.</p></div>
   <div class="stack"><div class="bigfigs"><div class="fig"><div class="k">Rebate</div><div class="v" data-out="value"></div></div><div class="fig"><div class="k">Certificates</div><div class="v" data-out="stcs" style="font-size:1.1rem"></div></div><div class="fig"><div class="k"><span data-out="where"></span></div><div class="v" data-out="zone" style="font-size:1.1rem"></div></div></div>
     <p class="mono small muted" data-out="working"></p>
-    <p class="small">The zone is estimated from your postcode. The Clean Energy Regulator sets the exact zone, and your installer's quote uses it. Certificate prices move; this uses $${R.stcPrice}.</p>${calcCta(L)}</div></div></div>`
+    <p class="small">The zone is estimated from your postcode. The Clean Energy Regulator sets the exact zone, and your installer's quote uses it. Certificate prices move; this uses ${R.stcLabel}.</p>${calcCta(L)}</div></div></div>`
 }, L));
 
 page("tools/battery-rebate-calculator/", (L) => layout({
@@ -255,11 +276,16 @@ page("guides/", (L) => layout({
 }, L));
 
 for (const g of guides) {
+  const gl = ld({ "@context": "https://schema.org", "@graph": [
+    { "@type": "Article", headline: g.title, description: g.description, datePublished: g.published || brand.published, dateModified: MODIFIED, author: { "@id": brand.domain + "/#org" }, publisher: { "@id": brand.domain + "/#org" }, reviewedBy: reviewer, mainEntityOfPage: brand.domain + `/guides/${g.slug}/`, inLanguage: "en-AU" },
+    ...(g.faq ? [{ "@type": "FAQPage", mainEntity: g.faq({ R, money }).map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a.replace(/<[^>]+>/g, "") } })) }] : []),
+    crumbsLd([["Home", ""], ["Guides", "guides/"], [g.short, `guides/${g.slug}/`]])
+  ] });
   page(`guides/${g.slug}/`, (L) => layout({
-    path: `guides/${g.slug}/`, title: `${g.title} | ${brand.name}`, description: g.description,
+    path: `guides/${g.slug}/`, title: `${g.title} | ${brand.name}`, description: g.description, jsonld: gl,
     body: `<div class="wrap"><div class="article"><article class="article-body">
       <p class="crumbs"><a href="${L("")}">Home</a> / <a href="${L("guides/")}">Guides</a></p>
-      <h1>${esc(g.title)}</h1><p class="small muted">Updated ${R.asAt}</p>${g.html({ R, money, L })}
+      <h1>${esc(g.title)}</h1>${reviewedLine()}${g.html({ R, money, L })}${sourcesBlock(g.sources)}
     </article><aside class="article-aside"><p class="eyebrow">Your rebate</p>${quizCard()}</aside></div></div>`
   }, L));
 }
@@ -354,8 +380,35 @@ for (const p of pages) {
   writeFileSync(file, p.render(L));
 }
 if (!PREVIEW) {
-  const urls = pages.filter((p) => !p.path.startsWith("quote/") && !["thank-you/", "404.html"].includes(p.path)).map((p) => `<url><loc>${brand.domain}/${p.path}</loc></url>`).join("");
+  const urls = pages.filter((p) => !p.path.startsWith("quote/") && !["thank-you/", "404.html"].includes(p.path)).map((p) => `<url><loc>${brand.domain}/${p.path}</loc><lastmod>${MODIFIED}</lastmod></url>`).join("");
   writeFileSync(join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}</urlset>`);
-  writeFileSync(join(OUT, "robots.txt"), `User-agent: *\nDisallow: /thank-you/\nDisallow: /quote/\nSitemap: ${brand.domain}/sitemap.xml\n`);
+  // Search and AI assistants are welcome on the guides and rebate pages; ad landing pages and thank-you stay out
+  const bots = ["*", "Googlebot", "Bingbot", "OAI-SearchBot", "ChatGPT-User", "GPTBot", "ClaudeBot", "Claude-SearchBot", "Claude-User", "PerplexityBot", "Perplexity-User", "Google-Extended", "Applebot", "Applebot-Extended"];
+  writeFileSync(join(OUT, "robots.txt"), bots.map((b) => `User-agent: ${b}\nAllow: /\nDisallow: /thank-you/\nDisallow: /quote/\n`).join("\n") + `\nSitemap: ${brand.domain}/sitemap.xml\n`);
+  const idx = pages.filter((p) => !p.path.startsWith("quote/") && !["thank-you/", "404.html"].includes(p.path));
+  const titleOf = (p) => { const m = p.render(makeLink(p.path)).match(/<title>([^<]*)<\/title>/); return m ? m[1].replace(` | ${brand.name}`, "").replace(/&amp;/g, "&") : p.path; };
+  writeFileSync(join(OUT, "llms.txt"), `# ${brand.name}
+
+> ${brand.name} (${brand.domain.replace("https://", "")}) publishes Australian solar and battery rebate guides and calculators, worked out by postcode, and passes quote requests to one installation partner. It is a private marketing service operated by ${brand.legalName} (ABN ${brand.abn}), not a government body. Figures are as at ${R.asAt}, with STCs valued at ${R.stcLabel}.
+
+Key facts as at ${R.asAt}:
+- Federal battery rebate (Cheaper Home Batteries): ${R.currentWindow().factor} STCs per usable kWh on the first 14 kWh, 60% of that from 14 to 28 kWh, 15% from 28 to 50 kWh; minimum 5 kWh. Steps down to ${(R.nextWindow(R.currentWindow()) || R.currentWindow()).factor} on ${nextStep}, then every six months to 2030. The install date sets the rate.
+- Federal solar rebate (STCs): system kW x zone rating x deeming years (${R.deeming[R.yearOf(R.ymd())]} for installs in ${R.yearOf(R.ymd())}). South-east Queensland is zone 3.
+- Queensland: no state rebate for owner-occupiers (Battery Booster closed). Landlords can get $2,500 to $3,500 towards solar through Supercharged Solar for Renters, applying before installation.
+
+## Rebates and guides
+${idx.filter((p) => /^(rebates|guides)\//.test(p.path)).map((p) => `- [${titleOf(p)}](${brand.domain}/${p.path})`).join("\n")}
+
+## Calculators
+${idx.filter((p) => /^tools\/./.test(p.path)).map((p) => `- [${titleOf(p)}](${brand.domain}/${p.path})`).join("\n")}
+
+## About
+- [How it works](${brand.domain}/how-it-works/)
+- [The Solar Standard checklist](${brand.domain}/the-standard/)
+- [Collection statement](${brand.domain}/collection-statement/)
+
+## Official sources
+${Object.values(officialSources).map((x) => `- [${x.title}](${x.url})`).join("\n")}
+`);
 }
 console.log(`Built ${pages.length} pages into ${OUT}/`);

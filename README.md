@@ -72,17 +72,26 @@ Instant Forms. Put the pixel ID in `config/site.mjs` (browser) and `META_PIXEL_I
 
 ## Keeping figures current
 
-All rebate numbers live in `src/assets/rebates.js` and `config/site.mjs`, checked 12 November 2026.
+All rebate numbers live in `src/assets/rebates.js` and `config/site.mjs`, checked 12 November 2026 (`asAt` and `asAtYmd`).
 
 - **Battery rate**: the full legislated schedule to 2030 is in `batteryWindows`. The quiz turns the homeowner's
   timeframe into a likely install date (`timeframeDays`) and uses the rate and solar deeming year for that date.
   If the install falls after a step-down, the estimate says what installing earlier would add. The countdown,
   landing-page headline and FAQ pick the next step-down from the build date, so rebuild after each 1 January and 1 July.
-- **STC price** (`stcPrice`, currently $37) moves with the market. Every estimate labels it as assumed.
+- **STC price** (`stcPrice`, currently $38.20) moves with the market. Every estimate labels it as assumed.
 - **STC zones** are estimated from the postcode by state. The installer's quote is the final word.
 - **State programs**: VIC (Solar Homes $1,400, $150k income cap), WA (Synergy $1,300, Horizon $3,800) and
   QLD Supercharged Solar for Renters (landlords only, $2,500 to $3,500 by system size) are quantified.
   NSW, SA and ACT programs are described without amounts on purpose.
+
+## Search and AI visibility
+
+- Every indexable page carries Organization and WebSite structured data. Rebate pages add FAQPage and breadcrumbs, and
+  guides add Article (with `reviewedBy` from `brand.reviewer`) plus FAQPage where a guide has a `faq` list.
+- Guides and rebate pages show "Reviewed by" and a Sources list from `officialSources` in `config/site.mjs`.
+- `robots.txt` names the main search and AI crawlers (Google, Bing, OpenAI, Anthropic, Perplexity, Apple) and lets them
+  read everything except `/quote/` and `/thank-you/`. `llms.txt` gives AI tools a summary, the key figures and a page list.
+- The sitemap's `lastmod` is `asAtYmd`, so bump it whenever figures are re-checked.
 
 ## Google tracking
 

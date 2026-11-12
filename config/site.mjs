@@ -18,7 +18,20 @@ export const brand = {
   // What a lead of each grade is worth to us, in dollars, sent to Google with every conversion
   // so Ads bids towards the leads that sell. Roughly A$6,000 commission × the expected close rate.
   // Renters (R) are never counted. Revisit once the pilot has real close rates.
-  leadValues: { A: 450, B: 250, C: 60, R: 0 }
+  leadValues: { A: 450, B: 250, C: 60, R: 0 },
+  // Named reviewer shown on guides and rebate pages, and in structured data. AI search and
+  // Google both weigh who checked a page and when.
+  reviewer: { name: "Tomas Cooper", role: "Director, TMC Innovations" },
+  published: "2026-10-29"              // first publish date of the guides
+};
+
+// Official pages the rebate figures are checked against. Shown as "Sources" on guides and
+// rebate pages, and listed in llms.txt, so answers can be traced back.
+export const officialSources = {
+  batteries: { title: "Clean Energy Regulator: Cheaper Home Batteries changes from 1 May 2026", url: "https://cer.gov.au/node/5406" },
+  qldRenters: { title: "Queensland Government: Supercharged Solar for Renters", url: "https://www.qld.gov.au/solar-for-renters" },
+  qldRentersRules: { title: "Queensland Treasury: Supercharged Solar for Renters eligibility", url: "https://www.treasury.qld.gov.au/policies-and-programs/energy/supercharged-solar-for-renters/" },
+  qldBooster: { title: "Queensland Government: Battery Booster (closed)", url: "https://qld.gov.au/housing/home-modifications-energy-savings/battery-booster-program" }
 };
 
 // State pages. Only figures that were checked against official or

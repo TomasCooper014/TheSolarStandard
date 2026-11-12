@@ -161,7 +161,7 @@
       '<h2 tabindex="-1">Your estimated rebates</h2>' +
       '<div class="receipt" aria-label="Rebate estimate"><div class="receipt-head"><span>' + d.postcode + " · " + R.states[est.state] + '</span><span>As at ' + R.asAt + "</span></div>" + rows +
       '<div class="receipt-total"><span><b>Estimated total</b></span><span class="amt">' + R.money(est.total) + "</span></div>" +
-      '<p class="receipt-foot">Based on a typical ' + (d.product === "battery" ? est.size.kwh + " kWh battery" : d.product === "solar" ? est.size.kw + " kW system" : est.size.kw + " kW system and " + est.size.kwh + " kWh battery") + ' for your bill, ' + when + '.' + earlierNote + ' Certificates are valued at an assumed $' + R.stcPrice + ' each. The rate is set by the install date, not the signing date, and your installer confirms the exact figure.</p></div>' +
+      '<p class="receipt-foot">Based on a typical ' + (d.product === "battery" ? est.size.kwh + " kWh battery" : d.product === "solar" ? est.size.kw + " kW system" : est.size.kw + " kW system and " + est.size.kwh + " kWh battery") + ' for your bill, ' + when + '.' + earlierNote + ' Certificates are valued at an assumed ' + R.stcLabel + ' each. The rate is set by the install date, not the signing date, and your installer confirms the exact figure.</p></div>' +
       '<p><b>Where should we send it?</b> We\'ll pass your details to our installation partner for a free written quote. You\'ll see who they are as soon as you submit.</p>' +
       '<form class="stack" id="lead-form" novalidate>' +
       '<div class="grid-2">' + field("firstName", "First name", "given-name") + field("lastName", "Last name", "family-name") + "</div>" +
@@ -293,7 +293,7 @@
     var n = R.solarStcs(kw, zone, year);
     setOut(root, "where", R.states[st]); setOut(root, "zone", "Zone " + zone);
     setOut(root, "stcs", n + " certificates"); setOut(root, "value", R.money(n * R.stcPrice));
-    setOut(root, "working", kw.toFixed(1) + " kW × " + R.zoneRating[zone] + " (zone " + zone + ") × " + R.deeming[year] + " years = " + n + " STCs × $" + R.stcPrice);
+    setOut(root, "working", kw.toFixed(1) + " kW × " + R.zoneRating[zone] + " (zone " + zone + ") × " + R.deeming[year] + " years = " + n + " STCs × " + R.stcLabel);
   });
 
   bindCalc("calc-battery", function (root) {
@@ -304,7 +304,7 @@
     var n = R.batteryStcs(kwh, win.factor), fed = n * R.stcPrice, st = R.waBattery(kwh, wa);
     setOut(root, "fed", R.money(fed)); setOut(root, "state", st ? R.money(st) : "$0");
     setOut(root, "total", R.money(fed + st)); setOut(root, "perkwh", R.money((fed + st) / kwh) + " per kWh");
-    setOut(root, "working", n + " certificates (" + win.factor + " per kWh on the first 14 kWh, 60% to 28 kWh, 15% to 50 kWh) × $" + R.stcPrice);
+    setOut(root, "working", n + " certificates (" + win.factor + " per kWh on the first 14 kWh, 60% to 28 kWh, 15% to 50 kWh) × " + R.stcLabel);
   });
 
   bindCalc("calc-savings", function (root) {

@@ -7,7 +7,9 @@
   var R = {};
 
   R.asAt = "12 November 2026";
-  R.stcPrice = 37; // $ per certificate, moves with the market. Shown as "assumed" on every estimate.
+  R.asAtYmd = "2026-11-12"; // same date, for structured data and the sitemap
+  R.stcPrice = 38.2; // $ per certificate, moves with the market. Shown as "assumed" on every estimate.
+  R.stcLabel = "$" + R.stcPrice.toFixed(2);
 
   // Solar STCs: rating (MWh per kW per year) by zone
   R.zoneRating = { 1: 1.622, 2: 1.536, 3: 1.382, 4: 1.185 };
@@ -149,11 +151,11 @@
     var wantBattery = o.product === "battery" || o.product === "both";
     if (wantSolar && zone) {
       var s = R.solarStcs(size.kw, zone, installYear);
-      lines.push({ key: "stc", label: "Federal solar rebate (STCs)", detail: size.kw + " kW, zone " + zone + ", " + R.deeming[installYear] + " deeming years: " + s + " certificates at an assumed $" + R.stcPrice, amount: s * R.stcPrice });
+      lines.push({ key: "stc", label: "Federal solar rebate (STCs)", detail: size.kw + " kW, zone " + zone + ", " + R.deeming[installYear] + " deeming years: " + s + " certificates at an assumed " + R.stcLabel, amount: s * R.stcPrice });
     }
     if (wantBattery) {
       var b = R.batteryStcs(size.kwh, win.factor);
-      lines.push({ key: "chb", label: "Federal battery rebate", detail: size.kwh + " kWh battery, " + win.factor + " certificates per kWh (" + win.label + "): " + b + " certificates at an assumed $" + R.stcPrice, amount: b * R.stcPrice });
+      lines.push({ key: "chb", label: "Federal battery rebate", detail: size.kwh + " kWh battery, " + win.factor + " certificates per kWh (" + win.label + "): " + b + " certificates at an assumed " + R.stcLabel, amount: b * R.stcPrice });
     }
     if (state === "QLD" && wantSolar && o.ownership === "landlord" && o.existing !== "has-solar") {
       lines.push({ key: "qldrent", label: "Supercharged Solar for Renters (QLD)", detail: "Paid by the Queensland Government to eligible landlords with a current tenancy and the tenant's consent. You apply yourself and need conditional approval before the install.", amount: R.qldRentersRebate(size.kw), conditional: true });
