@@ -41,7 +41,8 @@
 
   /* ---------- Countdown to the next battery step-down ---------- */
   $$("[data-countdown]").forEach(function (el) {
-    var days = Math.ceil((new Date("2027-01-01T00:00:00+10:00") - new Date()) / 86400000);
+    var next = R.addDays(R.currentWindow().to, 1);
+    var days = Math.ceil((new Date(next + "T00:00:00+10:00") - new Date()) / 86400000);
     if (days > 0) el.textContent = days + (days === 1 ? " day" : " days");
     else el.closest(".countdown") && (el.closest(".countdown").hidden = true);
   });
@@ -138,14 +139,18 @@
     var self = this;
     this.root.innerHTML = '<h2 tabindex="-1">Thanks for checking</h2>' +
       '<p>Solar and battery rebates are claimed on the property, so the owner needs to arrange the install. Many landlords are open to it, because it lifts the value of the home.</p>' +
-      '<p class="muted small">If you\'re in Victoria, Solar Victoria also runs a rebate for rental properties that needs an agreement signed by both the landlord and the tenant.</p>' +
+      (this.data.state === "QLD"
+        ? '<p class="muted small">In Queensland, your landlord may be eligible for up to $3,500 towards solar through the state\'s Supercharged Solar for Renters program. The landlord applies, needs your consent, and must get conditional approval before the install. Details are on the <a href="https://www.qld.gov.au/solar-for-renters" target="_blank" rel="noopener">Queensland Government website</a>.</p>'
+        : '<p class="muted small">Victoria and Queensland both run solar programs for rental properties that the landlord applies for with the tenant\'s agreement.</p>') +
       '<div class="quiz-nav"><button type="button" class="linkish" data-back>Go back</button><a class="btn btn-small btn-ghost" href="' + link("guides/how-solar-rebates-work/") + '">How rebates work</a></div>';
     $("[data-back]", this.root).addEventListener("click", function () { self.data.ownership = null; self.render(true); });
     $("h2", this.root).focus({ preventScroll: true });
   };
   Quiz.prototype.renderResult = function (focus) {
     var self = this, d = this.data;
-    var est = R.estimate({ postcode: d.postcode, product: d.product, bill: d.bill, waRetailer: d.waRetailer });
+    var est = R.estimate({ postcode: d.postcode, product: d.product, bill: d.bill, waRetailer: d.waRetailer, ownership: d.ownership, existing: d.product === "battery" ? "has-solar" : d.existing, timeframe: d.timeframe });
+    var when = d.timeframe === "asap" ? "installed as soon as possible (around " + R.monthLabel(est.installDate) + ")" : "installed around " + R.monthLabel(est.installDate);
+    var earlierNote = est.earlier ? ' If it\'s installed by ' + R.longDate(est.earlier.by) + ', the federal rebate would be about ' + R.money(est.earlier.gain) + ' higher.' : "";
     this.estimate = est;
     var rows = est.lines.map(function (l) {
       return '<div class="receipt-row"><span class="lbl">' + l.label + (l.conditional ? '<span class="cond">if eligible</span>' : "") + '</span><span class="amt">' + R.money(l.amount) + '</span><span class="det">' + l.detail + "</span></div>";
@@ -156,7 +161,7 @@
       '<h2 tabindex="-1">Your estimated rebates</h2>' +
       '<div class="receipt" aria-label="Rebate estimate"><div class="receipt-head"><span>' + d.postcode + " · " + R.states[est.state] + '</span><span>As at ' + R.asAt + "</span></div>" + rows +
       '<div class="receipt-total"><span><b>Estimated total</b></span><span class="amt">' + R.money(est.total) + "</span></div>" +
-      '<p class="receipt-foot">Based on a typical ' + (d.product === "battery" ? est.size.kwh + " kWh battery" : d.product === "solar" ? est.size.kw + " kW system" : est.size.kw + " kW system and " + est.size.kwh + " kWh battery") + ' for your bill, installed before 1 January 2027. Your installer confirms the exact figure.</p></div>' +
+      '<p class="receipt-foot">Based on a typical ' + (d.product === "battery" ? est.size.kwh + " kWh battery" : d.product === "solar" ? est.size.kw + " kW system" : est.size.kw + " kW system and " + est.size.kwh + " kWh battery") + ' for your bill, ' + when + '.' + earlierNote + ' Certificates are valued at an assumed $' + R.stcPrice + ' each. The rate is set by the install date, not the signing date, and your installer confirms the exact figure.</p></div>' +
       '<p><b>Where should we send it?</b> We\'ll pass your details to our installation partner for a free written quote. You\'ll see who they are as soon as you submit.</p>' +
       '<form class="stack" id="lead-form" novalidate>' +
       '<div class="grid-2">' + field("firstName", "First name", "given-name") + field("lastName", "Last name", "family-name") + "</div>" +
@@ -209,7 +214,16 @@
     var done = function (out) {
       put("lead", { ref: out.ref, token: out.token, firstName: payload.firstName, suburb: payload.suburb, total: est.total, grade: out.grade });
       if (window.fbq) window.fbq("track", "Lead", { content_category: payload.product }, { eventID: self.eventId });
-      if (window.gtag) window.gtag("event", "generate_lead", { value: 1, currency: "AUD", lead_grade: out.grade });
+      if (window.gtag) {
+        // Value by grade so Google bids towards the leads that turn into sales. Set in config/site.mjs.
+        var value = (SITE.leadValues || {})[out.grade];
+        if (value == null) value = 0;
+        if (SITE.googleAdsConversion && value > 0) {
+          window.gtag("set", "user_data", { email: payload.email, phone_number: "+61" + payload.mobile.replace(/\D/g, "").replace(/^(61|0)/, "") });
+          window.gtag("event", "conversion", { send_to: SITE.googleAdsConversion, value: value, currency: "AUD", transaction_id: out.ref });
+        }
+        window.gtag("event", "generate_lead", { value: value, currency: "AUD", lead_grade: out.grade });
+      }
       location.href = link("thank-you/") + "?ref=" + encodeURIComponent(out.ref) + "&t=" + encodeURIComponent(out.token);
     };
     if (PREVIEW) return setTimeout(function () { done({ ref: "preview", token: "preview", grade: "A" }); }, 500);
@@ -306,8 +320,9 @@
     var exported = Math.max(0, gen - self);
     var saving = self * tariff + exported * fit;
     var zone = st === "VIC" || st === "TAS" ? 4 : st === "NT" ? 2 : 3;
-    var solarCost = kw * 1000 - R.solarStcs(kw, zone, 2026) * R.stcPrice;
-    var batCost = battery ? 13.5 * 1050 - R.batteryStcs(13.5, R.batteryWindows[0].factor) * R.stcPrice : 0;
+    var year = Math.min(Math.max(R.yearOf(R.ymd()), 2026), 2030);
+    var solarCost = kw * 1000 - R.solarStcs(kw, zone, year) * R.stcPrice;
+    var batCost = battery ? 13.5 * 1050 - R.batteryStcs(13.5, R.currentWindow().factor) * R.stcPrice : 0;
     var cost = Math.max(0, solarCost + batCost);
     setOut(root, "gen", Math.round(gen).toLocaleString("en-AU") + " kWh");
     setOut(root, "saving", R.money(saving));

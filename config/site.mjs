@@ -11,7 +11,14 @@ export const brand = {
   legalName: "TMC Innovations Pty Ltd",
   tagline: "See your solar and battery rebate, then get a free, itemised written quote from an accredited installation partner.",
   metaPixelId: "",                    // e.g. "1234567890"; leave empty to turn the pixel off
-  googleTagId: ""                     // e.g. "G-XXXXXXX" or "AW-XXXXXXX"
+  googleTagId: "",                    // Google Analytics 4, e.g. "G-XXXXXXX"
+  googleAdsId: "",                    // Google Ads account tag, e.g. "AW-1234567890"
+  googleAdsConversion: "",            // Google Ads lead conversion, e.g. "AW-1234567890/AbCdEfGhIj"
+  googleSiteVerification: "",         // Search Console "HTML tag" code, the content="..." value only
+  // What a lead of each grade is worth to us, in dollars, sent to Google with every conversion
+  // so Ads bids towards the leads that sell. Roughly A$6,000 commission × the expected close rate.
+  // Renters (R) are never counted. Revisit once the pilot has real close rates.
+  leadValues: { A: 450, B: 250, C: 60, R: 0 }
 };
 
 // State pages. Only figures that were checked against official or
@@ -32,7 +39,8 @@ export const stateInfo = {
   QLD: {
     slug: "qld", city: "Brisbane", note: "South-east Queensland is STC zone 3. Parts of central and northern Queensland can sit in zone 2.",
     extras: [
-      { title: "Federal rebates apply", body: "Queensland has no state-wide solar or battery rebate at present. Homeowners use the federal STC rebate and the Cheaper Home Batteries rebate." }
+      { title: "Federal rebates for owner-occupiers", body: "If you own and live in your home, the federal STC rebate and the Cheaper Home Batteries rebate are the ones that apply. Queensland has no state rebate for owner-occupiers at present. Both federal rebates come off the installer's price, so there's nothing to apply for." },
+      { title: "Landlords: Supercharged Solar for Renters, up to $3,500", body: "The Queensland Government pays eligible landlords $2,500 to $3,500 towards rooftop solar on a rental property, depending on system size (3 kW and up). The property must have a current tenancy and no existing solar, the tenant must consent, and the landlord applies directly to the Queensland Government and needs conditional approval before the install. The rebate is paid to the landlord after final approval, not taken off the quote. It covers solar panels, not batteries. Check the current rules at qld.gov.au/solar-for-renters." }
     ]
   },
   WA: {

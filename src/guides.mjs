@@ -16,7 +16,7 @@ export const guides = [
 <h2>The battery rebate</h2>
 <p>The Cheaper Home Batteries Program uses the same certificates. Until 31 December 2026 a battery earns ${R.batteryWindows[0].factor} certificates per kWh of usable capacity on the first 14 kWh, 60% of that from 14 to 28 kWh, and 15% from 28 to 50 kWh. It needs to be at least 5 kWh. The rate steps down every six months until 2030. Our <a href="${L("guides/battery-rebate-2027/")}">guide to the January change</a> has the numbers.</p>
 <h2>State rebates on top</h2>
-<p>Victoria's Solar Homes program pays up to $1,400 towards panels for eligible households. WA pays up to $1,300 on a battery for Synergy customers and up to $3,800 for Horizon Power customers, if the battery joins a virtual power plant. Other states currently rely on the federal programs, with some VPP incentives. See <a href="${L("rebates/")}">rebates by state</a>.</p>
+<p>Victoria's Solar Homes program pays up to $1,400 towards panels for eligible households. WA pays up to $1,300 on a battery for Synergy customers and up to $3,800 for Horizon Power customers, if the battery joins a virtual power plant. Queensland pays eligible landlords up to $3,500 towards solar on a rental through Supercharged Solar for Renters; the landlord applies to the Queensland Government before the install, and owner-occupiers aren't eligible. Other states currently rely on the federal programs, with some VPP incentives. See <a href="${L("rebates/")}">rebates by state</a>.</p>
 <h2>What to look for on the quote</h2>
 <p>The quote should show the system price, the STC discount and any state rebate as separate lines, plus the number of certificates. If it only shows one total, ask for the breakdown.</p>`;
     }

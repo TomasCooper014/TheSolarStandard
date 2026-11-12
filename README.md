@@ -72,20 +72,29 @@ Instant Forms. Put the pixel ID in `config/site.mjs` (browser) and `META_PIXEL_I
 
 ## Keeping figures current
 
-All rebate numbers live in `src/assets/rebates.js` and `config/site.mjs`, checked 29 October 2026.
+All rebate numbers live in `src/assets/rebates.js` and `config/site.mjs`, checked 12 November 2026.
 
-- **Before 1 January 2027**: the battery factor drops from 6.8 to 5.7, and solar deeming from 5 to 4 years.
-  Update `batteryWindows` (add Jul to Dec 2027 when the rate is published) and `asAt`. The countdown
-  pill on the pages hides itself after the date.
-- **STC price** (`stcPrice`, currently $37) moves with the market.
+- **Battery rate**: the full legislated schedule to 2030 is in `batteryWindows`. The quiz turns the homeowner's
+  timeframe into a likely install date (`timeframeDays`) and uses the rate and solar deeming year for that date.
+  If the install falls after a step-down, the estimate says what installing earlier would add. The countdown,
+  landing-page headline and FAQ pick the next step-down from the build date, so rebuild after each 1 January and 1 July.
+- **STC price** (`stcPrice`, currently $37) moves with the market. Every estimate labels it as assumed.
 - **STC zones** are estimated from the postcode by state. The installer's quote is the final word.
-- **State programs**: VIC (Solar Homes $1,400, $150k income cap) and WA (Synergy $1,300, Horizon $3,800)
-  are quantified. NSW, SA and ACT programs are described without amounts on purpose.
+- **State programs**: VIC (Solar Homes $1,400, $150k income cap), WA (Synergy $1,300, Horizon $3,800) and
+  QLD Supercharged Solar for Renters (landlords only, $2,500 to $3,500 by system size) are quantified.
+  NSW, SA and ACT programs are described without amounts on purpose.
+
+## Google tracking
+
+In `config/site.mjs`: `googleTagId` (GA4), `googleAdsId` and `googleAdsConversion` (Google Ads), and
+`googleSiteVerification` (Search Console HTML tag). Each lead sends a value by grade from `leadValues`, so Google
+bids towards A-grade leads. Renters send nothing. With a Google Ads conversion set, the hashed email and mobile go
+with it as enhanced conversions, which the privacy policy already covers.
 
 ## Before launch
 
 - Fill in the ABN and phone number in `config/site.mjs`, and confirm the legal name and domain.
-- Have the privacy policy, collection statement and terms reviewed. They're templates.
+- Have the privacy policy, collection statement and terms reviewed. They started as templates; the public "template" notes have been removed, so the review still needs doing.
 - Fill in real regions in `config/routing.mjs`. Leads go to Sarina unless a region names another owner.
 - Verify your sending domain in Resend before turning on the email.
 - Submit a test lead with `META_TEST_EVENT_CODE` set and `DEBUG_LEADS=true`, check it in the Pipedrive

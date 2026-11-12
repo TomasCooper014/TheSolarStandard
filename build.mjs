@@ -38,8 +38,10 @@ const wordmark = `<span class="wordmark"><span class="wm-the">The</span> Solar S
 function layout({ path, title, description, body, landing = false, noindex = false, jsonld = "" }, L) {
   const canonical = brand.domain + "/" + path;
   const pixel = brand.metaPixelId && !PREVIEW ? `<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${brand.metaPixelId}');fbq('track','PageView');</script>` : "";
-  const gtag = brand.googleTagId && !PREVIEW ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${brand.googleTagId}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${brand.googleTagId}');</script>` : "";
-  const site = { brand: brand.name, phone: brand.phone, root: L.root, pretty: !PREVIEW, preview: PREVIEW, yields: yieldPerKw };
+  const tagIds = [brand.googleTagId, brand.googleAdsId].filter(Boolean);
+  const gtag = tagIds.length && !PREVIEW ? `<script async src="https://www.googletagmanager.com/gtag/js?id=${tagIds[0]}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());${tagIds.map((id) => `gtag('config','${id}'${id.startsWith("AW-") ? ",{allow_enhanced_conversions:true}" : ""});`).join("")}</script>` : "";
+  const verify = brand.googleSiteVerification ? `<meta name="google-site-verification" content="${esc(brand.googleSiteVerification)}">` : "";
+  const site = { brand: brand.name, phone: brand.phone, root: L.root, pretty: !PREVIEW, preview: PREVIEW, yields: yieldPerKw, leadValues: brand.leadValues || {}, googleAdsConversion: brand.googleAdsConversion || "" };
   const head = landing
     ? `<header class="site-head lp-head"><div class="wrap"><span class="logo">${logo}${wordmark}</span><span class="small muted">Questions? <b>${esc(brand.phone)}</b></span></div></header>`
     : `<header class="site-head"><div class="wrap"><a class="logo" href="${L("")}">${logo}${wordmark}</a>
@@ -54,7 +56,7 @@ function layout({ path, title, description, body, landing = false, noindex = fal
   return `<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(title)}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="${esc(description)}">
+<meta name="description" content="${esc(description)}">${verify}
 ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${canonical}">`}
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -70,7 +72,8 @@ ${foot}
 </body></html>`;
 }
 
-const countdown = `<span class="countdown"><span>Battery rebate steps down 1 January 2027</span><span><span class="num" data-countdown>soon</span> to go</span></span>`;
+const nextStep = R.longDate(R.addDays(R.currentWindow().to, 1));
+const countdown = `<span class="countdown"><span>Battery rebate steps down ${nextStep}</span><span><span class="num" data-countdown>soon</span> to go</span></span>`;
 const quizCard = (attrs = "") => `<div class="quiz" data-quiz ${attrs} aria-live="polite"><noscript>Turn on JavaScript to use the rebate quiz, or call ${esc(brand.phone)}.</noscript></div>`;
 const trust = `<ul class="trust"><li>Takes about 60 seconds</li><li>One company contacts you, not five</li><li>Quotes held to The Solar Standard</li></ul>`;
 
@@ -111,7 +114,7 @@ page("", (L) => layout({
     <div class="stack"><div class="section-head"><p class="eyebrow">The Solar Standard</p><h2>Six things every solar quote should meet</h2><p class="muted">Use it on any quote, from us or anyone else.</p></div>
       <ul class="std-list">${STANDARD.map((x) => `<li><h3>${esc(x.title)}</h3><p class="muted small">${esc(x.short)}</p></li>`).join("")}</ul>
       <p><a href="${L("the-standard/")}">Read the full checklist</a></p></div>
-    <div class="stack"><div class="section-head"><p class="eyebrow">Rebates by state</p><h2>What's on offer where you live</h2><p class="muted">The federal rebates apply everywhere. Victoria and WA add their own on top.</p></div>
+    <div class="stack"><div class="section-head"><p class="eyebrow">Rebates by state</p><h2>What's on offer where you live</h2><p class="muted">The federal rebates apply everywhere. Victoria and WA add their own on top, and Queensland has a solar rebate for landlords.</p></div>
       <div class="statebar">${CODES.map((c) => `<a href="${L("rebates/" + stateInfo[c].slug + "/")}">${c}</a>`).join("")}</div></div>
     <div class="stack"><div class="section-head"><p class="eyebrow">Calculators</p><h2>Run the numbers yourself</h2></div>
       <div class="tiles">
@@ -139,7 +142,7 @@ for (const code of CODES) {
     description: `Check your ${R.states[code]} solar and battery rebates and get one free quote from an accredited local installer.`,
     body: `<section class="hero"><div class="wrap"><div class="hero-copy">${countdown}
       <h1>${R.states[code]} homeowners: see your solar and battery rebate</h1>
-      <p class="lead">A typical 10 kWh battery attracts about <b class="mono">${money(R.batteryStcs(10, R.batteryWindows[0].factor) * R.stcPrice)}</b> in federal rebate if it's installed before 1 January 2027.${code === "VIC" ? " Victoria adds up to $1,400 on solar panels." : code === "WA" ? " WA adds up to $1,300, or $3,800 with Horizon Power." : ""}</p>
+      <p class="lead">A typical 10 kWh battery attracts about <b class="mono">${money(R.batteryStcs(10, R.currentWindow().factor) * R.stcPrice)}</b> in federal rebate if it's installed by ${R.longDate(R.currentWindow().to)}.${code === "VIC" ? " Victoria adds up to $1,400 on solar panels." : code === "WA" ? " WA adds up to $1,300, or $3,800 with Horizon Power." : ""}</p>
       ${trust}</div>${quizCard(`data-state="${code}"`)}</div></section>
     <section class="section band"><div class="wrap stack-lg">
       <div class="section-head"><h2>What happens after you finish</h2></div>
@@ -153,9 +156,9 @@ for (const code of CODES) {
 function landingFaq(code) {
   return [
     ["Is this a government website?", `No. ${brand.name} is a private marketing service. The rebates are real government programs, and your installer applies them to your quote as a discount.`],
-    ["Do I have to apply for the rebate myself?", "No. The federal solar and battery rebates come off the installer's price as a point-of-sale discount. State rebates such as Solar Homes in Victoria have their own application, which the installer helps with."],
+    ["Do I have to apply for the rebate myself?", "No. The federal solar and battery rebates come off the installer's price as a point-of-sale discount. State rebates such as Solar Homes in Victoria have their own application, which the installer helps with. Queensland's Supercharged Solar for Renters is for landlords only, and the landlord applies to the Queensland Government before the install."],
     ["How many companies will call me?", `One. Your details go only to our installation partner.`],
-    ["Does the battery rebate end on 1 January?", "No. It steps down on 1 January 2027 and keeps stepping down every six months until it ends in 2030. What counts is when the battery is installed, not when you sign."]
+    ["Does the battery rebate end soon?", `No. It steps down on ${nextStep} and keeps stepping down every six months until it ends in 2030. What counts is when the battery is installed, not when you sign.`]
   ];
 }
 
@@ -327,7 +330,6 @@ legal("collection-statement/", "Collection statement", (L) => `
 <p>If you don't give us these details we can't arrange a quote. You can ask to see or correct your information, or make a complaint, by emailing ${esc(brand.email)}. Our <a href="${L("privacy/")}">privacy policy</a> has the detail.</p>`);
 
 legal("privacy/", "Privacy policy", (L) => `
-<p class="callout">Template policy. Have it reviewed against the Australian Privacy Principles before launch.</p>
 <p>${esc(brand.legalName)} (ABN ${esc(brand.abn)}) runs ${esc(brand.name)}. This policy explains how we handle personal information under the Privacy Act 1988 (Cth).</p>
 <h2>What we collect</h2><ul><li>Contact details you give us: name, mobile, email and address.</li><li>Your quiz answers: what you want installed, whether you own the home, your bill range and timeframe, and anything you add after submitting.</li><li>How you found us: campaign tags, the page you landed on, and advertising cookies if you allow them.</li></ul>
 <h2>Why we collect it</h2><ul><li>To estimate your rebates.</li><li>To pass your enquiry to our installation partner, ${esc(brand.partner)}, who contacts you about a quote.</li><li>To check the service worked, improve our website, and measure our advertising.</li></ul>
@@ -337,7 +339,6 @@ legal("privacy/", "Privacy policy", (L) => `
 <h2>Access, correction and complaints</h2><p>Email ${esc(brand.email)} to see or correct your information, or to complain. If you're not satisfied with our response, you can contact the Office of the Australian Information Commissioner at oaic.gov.au.</p>`);
 
 legal("terms/", "Terms of use", () => `
-<p class="callout">Template terms. Have them reviewed before launch.</p>
 <p>${esc(brand.name)} gives general information about solar and battery rebates. It isn't financial advice, and it isn't a quote.</p>
 <p>Rebate estimates use typical system sizes and published program rules as at ${R.asAt}. Certificate prices, program rules and eligibility change. Your installer confirms the exact rebate and price in writing after assessing your home.</p>
 <p>Quotes and installations are provided by our installation partner, ${esc(brand.partner)}, not by us. Your contract is with ${esc(brand.partner)}, and the Australian Consumer Law, including your cooling-off rights, applies to that contract.</p>`);
