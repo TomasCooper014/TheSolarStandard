@@ -4,11 +4,22 @@ export default {
     {
       "id": "seq",
       "name": "South-east Queensland",
-      "retailer": "Retailer A",
+      "retailer": "XF Energy",
       "postcodes": [
         "4000-4299",
         "4300-4399",
         "4500-4579"
+      ],
+      "pipedrive": {
+        "ownerId": null
+      }
+    },
+    {
+      "id": "adelaide",
+      "name": "Greater Adelaide (trial)",
+      "retailer": "XF Energy",
+      "postcodes": [
+        "5000-5199"
       ],
       "pipedrive": {
         "ownerId": null

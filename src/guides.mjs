@@ -32,7 +32,49 @@ const qldFaq = ({ R, money }) => {
   ];
 };
 
+// Same answer-first format for Adelaide and South Australia.
+const saFaq = ({ R, money }) => {
+  const now = R.currentWindow(), next = R.nextWindow(now) || now;
+  const year = Math.min(Math.max(R.yearOf(R.ymd()), 2026), 2030);
+  const until = R.longDate(now.to), step = R.longDate(R.addDays(now.to, 1));
+  const solar66 = R.solarStcs(6.6, 3, year), solar10 = R.solarStcs(10, 3, year);
+  const b10 = R.batteryStcs(10, now.factor), b135 = R.batteryStcs(13.5, now.factor), b135n = R.batteryStcs(13.5, next.factor);
+  const p = R.stcLabel;
+  return [
+    ["What solar and battery rebates can I get in Adelaide?",
+     `Adelaide homes get two federal rebates: the STC solar rebate and the Cheaper Home Batteries rebate, both taken off the installer's price. South Australia's Home Battery Scheme has closed. Some households can also get a REPS incentive for joining an approved virtual power plant.`],
+    ["How much is the solar rebate in Adelaide?",
+     `A 6.6 kW system in Adelaide earns ${solar66} STCs, about ${money(solar66 * R.stcPrice)}, and a 10 kW system earns ${solar10} STCs, about ${money(solar10 * R.stcPrice)}, if installed in ${year}, with certificates at ${p}. Adelaide is STC zone 3.`],
+    ["How much is the battery rebate in South Australia?",
+     `A 10 kWh battery installed by ${until} earns ${b10} STCs, about ${money(b10 * R.stcPrice)}, and a 13.5 kWh battery earns ${b135} STCs, about ${money(b135 * R.stcPrice)}, at ${p} per certificate. The federal battery rebate is the same in every state.`],
+    ["When does the battery rebate drop?",
+     `The battery rebate steps down on ${step}, from ${now.factor} to ${next.factor} STCs per kWh. On a 13.5 kWh battery that is about ${money((b135 - b135n) * R.stcPrice)} less. It keeps stepping down every 1 January and 1 July until it ends in 2030.`],
+    ["What is the REPS VPP incentive?",
+     `The Retailer Energy Productivity Scheme (REPS) lets energy retailers and VPP operators offer an incentive for connecting a battery to an approved virtual power plant. The amount depends on the provider and the battery, eligibility rules apply, and it is paid after the VPP connection is approved, not taken off the quote.`],
+    ["Is the SA Home Battery Scheme still open?",
+     `No. South Australia's Home Battery Scheme has closed. South Australian batteries get the federal Cheaper Home Batteries rebate, plus any REPS VPP incentive the household qualifies for.`],
+    ["Does the signing date or the install date set the rebate?",
+     `The install date sets the rebate, not the date you sign. A battery signed in December but installed in January gets the lower January rate, so ask the installer for an install date in writing.`],
+    ["Do I have to apply for the federal rebates?",
+     `No. You assign the certificates to your installer and they take the value off your price as a point-of-sale discount. The quote should show the STC discount as its own line.`],
+    ["Is The Solar Standard a government website?",
+     `No. The Solar Standard is a private marketing service operated by TMC Innovations Pty Ltd. It publishes rebate guides and calculators and passes quote requests to one installation partner.`]
+  ];
+};
+
 export const guides = [
+  {
+    slug: "adelaide-solar-battery-rebates-faq",
+    short: "Adelaide rebates FAQ",
+    title: "Adelaide and SA solar and battery rebates: questions answered",
+    description: "Short, dated answers on the federal solar and battery rebates in Adelaide, the 1 January step-down and the REPS VPP incentive.",
+    sources: ["batteries", "saReps"],
+    faq: saFaq,
+    html: ({ R, money, L }) => `
+<p>Every answer below starts with the figure, worked out with the same rebate maths as the <a href="${L("rebate-quiz/")}">rebate quiz</a>. Certificates are valued at ${R.stcLabel}.</p>
+${saFaq({ R, money }).map(([q, a]) => `<h2>${q}</h2><p>${a}</p>`).join("\n")}
+<p>See the full figures on the <a href="${L("rebates/sa/")}">South Australia rebates page</a>, or check a quote against <a href="${L("the-standard/")}">The Solar Standard checklist</a>.</p>`
+  },
   {
     slug: "queensland-solar-battery-rebates-faq",
     short: "QLD rebates FAQ",

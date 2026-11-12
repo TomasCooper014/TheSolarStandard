@@ -31,6 +31,7 @@ export const officialSources = {
   batteries: { title: "Clean Energy Regulator: Cheaper Home Batteries changes from 1 May 2026", url: "https://cer.gov.au/node/5406" },
   qldRenters: { title: "Queensland Government: Supercharged Solar for Renters", url: "https://www.qld.gov.au/solar-for-renters" },
   qldRentersRules: { title: "Queensland Treasury: Supercharged Solar for Renters eligibility", url: "https://www.treasury.qld.gov.au/policies-and-programs/energy/supercharged-solar-for-renters/" },
+  saReps: { title: "SA Government: Retailer Energy Productivity Scheme (REPS)", url: "https://www.energymining.sa.gov.au/consumers/energy-advisory-service/energy-saving-rebates" },
   qldBooster: { title: "Queensland Government: Battery Booster (closed)", url: "https://qld.gov.au/housing/home-modifications-energy-savings/battery-booster-program" }
 };
 
@@ -65,7 +66,8 @@ export const stateInfo = {
   SA: {
     slug: "sa", city: "Adelaide", note: "Adelaide and most of settled South Australia are STC zone 3.",
     extras: [
-      { title: "Federal rebates and VPP offers", body: "South Australia has no state-wide upfront rebate at present. The federal rebates apply, and several retailers run virtual power plant offers that pay battery owners." }
+      { title: "Federal rebates come off the price", body: "South Australian homes get the federal STC rebate on solar and the Cheaper Home Batteries rebate on a battery, both taken off the installer's price. The state's Home Battery Scheme has closed." },
+      { title: "REPS virtual power plant incentive", body: "Under the state's Retailer Energy Productivity Scheme (REPS), some households can get an extra incentive for connecting a battery to an approved virtual power plant. It's offered through energy retailers and VPP operators, the amount depends on the provider and the battery, eligibility rules apply, and it's paid after the VPP connection is approved, not taken off the quote. Your installer can tell you which VPPs your battery can join." }
     ]
   },
   TAS: {

@@ -61,7 +61,7 @@ test("a good lead lands in the Leads Inbox like WHY Solar's", async () => {
   assert.equal(l["090a33b5ed168933692e2e22d4fd943061b5cd8d"], "qld-rebate");
   const note = calls.find((c) => c.url.includes("/notes")).body;
   assert.equal(note.lead_id, LEAD);
-  assert.ok(note.content.includes("Region:</b> South-east Queensland (Retailer A)"));
+  assert.ok(note.content.includes("Region:</b> South-east Queensland (XF Energy)"));
   const crm = calls.find((c) => c.url.startsWith("https://crm.example"));
   assert.ok(crm.headers["x-signature-sha256"].length === 64);
   assert.ok(calls.some((c) => c.url.includes("api.resend.com")));

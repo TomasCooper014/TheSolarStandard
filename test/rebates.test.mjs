@@ -40,3 +40,11 @@ test("Queensland landlords see the renters rebate, owner-occupiers don't", () =>
   assert.equal(R.qldRentersRebate(3.5), 2500);
   assert.equal(R.qldRentersRebate(4.5), 3000);
 });
+
+test("Adelaide and SEQ postcodes route to XF Energy", async () => {
+  const { routeFor } = await import("../netlify/lib/lead-core.mjs");
+  assert.equal(routeFor("5000").id, "adelaide");
+  assert.equal(routeFor("5112").retailer, "XF Energy");
+  assert.equal(routeFor("4152").id, "seq");
+  assert.equal(routeFor("5700").id, "unassigned");
+});

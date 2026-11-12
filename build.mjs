@@ -196,8 +196,11 @@ for (const code of CODES) {
   ] });
   const summary = code === "QLD"
     ? `Queensland homeowners get two federal rebates: about ${money(R.solarStcs(6.6, 3, R.yearOf(R.ymd())) * R.stcPrice)} off a 6.6 kW solar system and about ${money(R.batteryStcs(13.5, R.currentWindow().factor) * R.stcPrice)} off a 13.5 kWh battery if installed by ${R.longDate(R.currentWindow().to)}. The state Battery Booster has closed, so there is no Queensland rebate for owner-occupiers. Landlords can get up to $3,500 towards solar through Supercharged Solar for Renters.`
+    : code === "SA"
+    ? `Adelaide homes get two federal rebates: about ${money(R.solarStcs(6.6, 3, R.yearOf(R.ymd())) * R.stcPrice)} off a 6.6 kW solar system and about ${money(R.batteryStcs(13.5, R.currentWindow().factor) * R.stcPrice)} off a 13.5 kWh battery if installed by ${R.longDate(R.currentWindow().to)}. The state Home Battery Scheme has closed. Some households can add a REPS incentive for joining an approved virtual power plant, set by the provider and paid after connection.`
     : "";
-  const stateSources = code === "QLD" ? ["batteries", "qldBooster", "qldRenters", "qldRentersRules"] : ["batteries"];
+  const stateSources = code === "QLD" ? ["batteries", "qldBooster", "qldRenters", "qldRentersRules"] : code === "SA" ? ["batteries", "saReps"] : ["batteries"];
+  const faqLink = { QLD: ["guides/queensland-solar-battery-rebates-faq/", "Queensland solar and battery rebates, questions answered"], SA: ["guides/adelaide-solar-battery-rebates-faq/", "Adelaide and SA solar and battery rebates, questions answered"] }[code];
   page(`rebates/${s.slug}/`, (L) => layout({
     path: `rebates/${s.slug}/`, jsonld,
     title: `${R.states[code]} Solar & Battery Rebates | ${brand.name}`,
@@ -214,7 +217,7 @@ for (const code of CODES) {
       <p>Since 1 May 2026 the first 14 kWh of usable capacity gets the full rate, each kWh from 14 to 28 gets 60%, and each kWh from 28 to 50 gets 15%. Batteries under 5 kWh aren't eligible. A battery sized to your evening use usually gets the best rebate per dollar.</p>
       <div class="callout">The rebate is set by the <b>install date</b>, not the date you sign. A battery signed in December but installed in January gets the lower 2027 rate.</div>
       <h2>Common questions</h2><div class="faq">${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div>
-      ${code === "QLD" ? `<p>More detail: <a href="${L("guides/queensland-solar-battery-rebates-faq/")}">Queensland solar and battery rebates, questions answered</a>.</p>` : ""}
+      ${faqLink ? `<p>More detail: <a href="${L(faqLink[0])}">${faqLink[1]}</a>.</p>` : ""}
       ${sourcesBlock(stateSources)}
       <p class="small muted">Figures as at ${R.asAt}, with certificates valued at ${R.stcLabel}. Certificate values move with the market. Check current program rules before you sign.</p>
     </div><aside class="article-aside"><p class="eyebrow">Your rebate</p>${quizCard(`data-state="${code}"`)}</aside></div></div>`
@@ -395,6 +398,7 @@ Key facts as at ${R.asAt}:
 - Federal battery rebate (Cheaper Home Batteries): ${R.currentWindow().factor} STCs per usable kWh on the first 14 kWh, 60% of that from 14 to 28 kWh, 15% from 28 to 50 kWh; minimum 5 kWh. Steps down to ${(R.nextWindow(R.currentWindow()) || R.currentWindow()).factor} on ${nextStep}, then every six months to 2030. The install date sets the rate.
 - Federal solar rebate (STCs): system kW x zone rating x deeming years (${R.deeming[R.yearOf(R.ymd())]} for installs in ${R.yearOf(R.ymd())}). South-east Queensland is zone 3.
 - Queensland: no state rebate for owner-occupiers (Battery Booster closed). Landlords can get $2,500 to $3,500 towards solar through Supercharged Solar for Renters, applying before installation.
+- South Australia: Home Battery Scheme closed. Some households can get a REPS incentive for joining an approved virtual power plant; the amount is set by the provider and paid after connection.
 
 ## Rebates and guides
 ${idx.filter((p) => /^(rebates|guides)\//.test(p.path)).map((p) => `- [${titleOf(p)}](${brand.domain}/${p.path})`).join("\n")}
