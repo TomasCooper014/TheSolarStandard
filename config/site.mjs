@@ -19,9 +19,9 @@ export const brand = {
   // so Ads bids towards the leads that sell. Roughly A$6,000 commission × the expected close rate.
   // Renters (R) are never counted. Revisit once the pilot has real close rates.
   // Official social profiles. Linked in the footer and listed as sameAs in structured data so
-  // Google can confirm the brand. Replace a share link with the profile's permanent address when known.
+  // Google can confirm the brand. Use each profile's permanent address, not a share link.
   social: {
-    facebook: "https://www.facebook.com/share/1EE9DvJktr/"
+    facebook: "https://www.facebook.com/profile.php?id=61595691315785"
   },
   leadValues: { A: 450, B: 250, C: 60, R: 0 },
   // Named reviewer shown on guides and rebate pages, and in structured data. AI search and
