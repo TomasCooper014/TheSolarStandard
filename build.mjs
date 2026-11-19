@@ -37,7 +37,7 @@ const wordmark = `<span class="wordmark"><span class="wm-the">The</span> Solar S
 
 // Structured data shared by every indexable page, so search engines and AI answers know who runs the site
 const ld = (obj) => `<script type="application/ld+json">${JSON.stringify(obj).replace(/</g, "\\u003c")}</script>`;
-const ORG = { "@type": "Organization", "@id": brand.domain + "/#org", name: brand.name, legalName: brand.legalName, url: brand.domain + "/", email: brand.email, telephone: brand.phone, taxID: "ABN " + brand.abn, areaServed: "AU", description: "A solar marketing service that publishes rebate guides and calculators and passes quote requests to one installation partner. Not a government body." };
+const ORG = { "@type": "Organization", "@id": brand.domain + "/#org", name: brand.name, alternateName: ["Solar Standard", "thesolarstandard.com.au"], legalName: brand.legalName, url: brand.domain + "/", logo: { "@type": "ImageObject", url: brand.domain + "/assets/logo.png", width: 512, height: 512 }, image: brand.domain + "/assets/og.png", email: brand.email, telephone: brand.phone, taxID: "ABN " + brand.abn, areaServed: "AU", description: "A solar marketing service that publishes rebate guides and calculators and passes quote requests to one installation partner. Not a government body." };
 const SITE_LD = ld({ "@context": "https://schema.org", "@graph": [ORG, { "@type": "WebSite", "@id": brand.domain + "/#site", url: brand.domain + "/", name: brand.name, publisher: { "@id": brand.domain + "/#org" }, inLanguage: "en-AU" }] });
 const MODIFIED = R.asAtYmd; // when the figures were last checked, not the build date
 const reviewer = { "@type": "Person", name: brand.reviewer.name, jobTitle: brand.reviewer.role, worksFor: { "@id": brand.domain + "/#org" } };
@@ -66,7 +66,7 @@ function layout({ path, title, description, body, landing = false, noindex = fal
   return `<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(title)}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="${esc(description)}">${verify}
+<meta name="description" content="${esc(description)}">${verify}<link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${canonical}">`}
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU"><meta property="og:url" content="${brand.domain}/${path}"><meta property="og:site_name" content="${esc(brand.name)}"><meta property="og:image" content="${brand.domain}/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -110,7 +110,7 @@ function exampleTable(code) {
 
 // ---------- pages ----------
 page("", (L) => layout({
-  path: "", title: `Solar & Battery Rebates ${R.yearOf(R.ymd())} by Postcode | ${brand.name}`, description: brand.tagline,
+  path: "", title: `${brand.name}: Solar & Battery Rebates ${R.yearOf(R.ymd())} by Postcode`, description: brand.tagline,
   body: `<section class="hero"><div class="wrap"><div class="hero-copy">
     ${countdown}
     <h1>Hold your solar quote to a higher standard</h1>
