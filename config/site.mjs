@@ -11,7 +11,7 @@ export const brand = {
   legalName: "TMC Innovations Pty Ltd",
   tagline: "See your solar and battery rebate, then get a free, itemised written quote from an accredited installation partner.",
   metaPixelId: "",                    // e.g. "1234567890"; leave empty to turn the pixel off
-  googleTagId: "",                    // Google Analytics 4, e.g. "G-XXXXXXX"
+  googleTagId: "G-CFYKBF3LJR",         // Google Analytics 4, e.g. "G-XXXXXXX"
   googleAdsId: "",                    // Google Ads account tag, e.g. "AW-1234567890"
   googleAdsConversion: "",            // Google Ads lead conversion, e.g. "AW-1234567890/AbCdEfGhIj"
   googleSiteVerification: "",         // Search Console "HTML tag" code, the content="..." value only
