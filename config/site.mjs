@@ -18,6 +18,11 @@ export const brand = {
   // What a lead of each grade is worth to us, in dollars, sent to Google with every conversion
   // so Ads bids towards the leads that sell. Roughly A$6,000 commission × the expected close rate.
   // Renters (R) are never counted. Revisit once the pilot has real close rates.
+  // Official social profiles. Linked in the footer and listed as sameAs in structured data so
+  // Google can confirm the brand. Replace a share link with the profile's permanent address when known.
+  social: {
+    facebook: "https://www.facebook.com/share/1EE9DvJktr/"
+  },
   leadValues: { A: 450, B: 250, C: 60, R: 0 },
   // Named reviewer shown on guides and rebate pages, and in structured data. AI search and
   // Google both weigh who checked a page and when.
