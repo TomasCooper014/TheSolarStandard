@@ -60,7 +60,36 @@ export const officialSources = {
   priceSolax: { title: "SolaX: Solar battery cost in Australia 2026 (June 2026)", url: "https://au.solaxpower.com/blogs/solar-battery-cost-australia-2026-complete-price-guide.html" },
   priceSolarCalc: { title: "SolarCalculator: Solar battery price, savings and payback (May 2026)", url: "https://solarcalculator.com.au/battery-storage/price/" },
   priceSolarNerds: { title: "Solar Nerds: How much does a mid-tier battery cost? (mid-2026)", url: "https://solarnerds.com.au/your-solar-journey/how-much-do-solar-and-batteries-cost/how-much-does-a-mid-tier-battery-cost" },
-  qldBooster: { title: "Queensland Government: Battery Booster (closed)", url: "https://qld.gov.au/housing/home-modifications-energy-savings/battery-booster-program" }
+  qldBooster: { title: "Queensland Government: Battery Booster (closed)", url: "https://qld.gov.au/housing/home-modifications-energy-savings/battery-booster-program" },
+  // Feed-in tariff sources (checked 21 November 2026, for 1 July 2026 to 30 June 2027)
+  fitNsw: { title: "IPART: Solar feed-in tariff benchmarks 2026-27", url: "https://www.ipart.nsw.gov.au/Home/Industries/Energy/Retail-prices/Solar-Energy" },
+  fitVic: { title: "Essential Services Commission: Minimum feed-in tariff (no longer set)", url: "https://www.esc.vic.gov.au/electricity-and-gas/electricity-and-gas-tariffs-and-benchmarks/minimum-feed-tariff" },
+  fitQld: { title: "Queensland Competition Authority: Regional Queensland feed-in tariff 2026-27", url: "https://www.qca.org.au/project/customers/solar-feed-in-tariffs/regional-queensland-feed-in-tariff-2026-27/" },
+  fitTas: { title: "Tasmanian Economic Regulator: Feed-in tariffs", url: "https://www.economicregulator.tas.gov.au/electricity/pricing/feed-in-tariffs" },
+  fitWa: { title: "Synergy: Distributed Energy Buyback Scheme (DEBS)", url: "https://www.synergy.net.au/Your-home/Manage-account/Solar-connections-and-upgrades/Distributed-Energy-Buyback-Scheme" },
+  fitNt: { title: "Jacana Energy: Residential pricing and tariffs 2026-27", url: "https://www.jacanaenergy.com.au/residential/pricing" },
+  energyMadeEasy: { title: "Australian Government: Energy Made Easy price comparison", url: "https://www.energymadeeasy.gov.au/" },
+  // Switchboard sources (checked 21 November 2026)
+  switchNsw: { title: "NSW Climate and Energy Action: Switchboard upgrades", url: "https://energy.nsw.gov.au/households/upgrades/switchboard" },
+  switchQld: { title: "Queensland Electrical Safety Office: Frequently asked questions", url: "https://electricalsafety.qld.gov.au/frequently-asked-questions" }
+};
+
+// Feed-in tariffs by state, 1 July 2026 to 30 June 2027. Only regulator or
+// government-retailer figures; where retailers set their own rate we say so.
+export const feedInTariffs = {
+  asAt: "21 November 2026",
+  period: "1 July 2026 to 30 June 2027",
+  rows: [
+    { state: "NSW", rate: "3.4 to 6.5c benchmark", who: "Set by each retailer. IPART publishes a benchmark range, not a minimum.", source: "fitNsw" },
+    { state: "VIC", rate: "No minimum", who: "Set by each retailer. The Essential Services Commission stopped setting a minimum from 1 July 2025.", source: "fitVic" },
+    { state: "QLD (south-east)", rate: "No minimum", who: "Set by each retailer.", source: "energyMadeEasy" },
+    { state: "QLD (regional)", rate: "6.006c", who: "Set by the Queensland Competition Authority, paid by Ergon Energy Retail.", source: "fitQld" },
+    { state: "SA", rate: "No minimum", who: "Set by each retailer.", source: "energyMadeEasy" },
+    { state: "ACT", rate: "No minimum", who: "Set by each retailer.", source: "energyMadeEasy" },
+    { state: "WA (Synergy)", rate: "10c 3pm to 9pm, 2c other times", who: "Set by the WA Government under DEBS, on the first 50 kWh exported each day.", source: "fitWa" },
+    { state: "TAS", rate: "9.276c minimum", who: "Set by the Tasmanian Economic Regulator. Retailers can pay more, not less.", source: "fitTas" },
+    { state: "NT (Jacana)", rate: "9.33c, or 18.66c 3pm to 9pm", who: "Regulated by the NT Government, paid by Jacana Energy.", source: "fitNt" }
+  ]
 };
 
 // State pages. Only figures that were checked against official or

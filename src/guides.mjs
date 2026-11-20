@@ -1,4 +1,24 @@
-import { stateInfo, marketPrices } from "../config/site.mjs";
+import { stateInfo, marketPrices, feedInTariffs } from "../config/site.mjs";
+
+// Feed-in tariff questions, answer first. Figures from the regulators for 2026-27.
+const fitFaq = () => [
+  ["What is a solar feed-in tariff?",
+   `A feed-in tariff is the credit your electricity retailer pays for each kWh of solar power your system sends to the grid. It is a credit on your bill, not a cash payment, and it only applies to the power you don't use yourself.`],
+  ["Which state has the highest feed-in tariff in 2026-27?",
+   `The Northern Territory pays the most: Jacana Energy pays 18.66c per kWh for power exported between 3pm and 9pm and 9.33c at other times. Tasmania has the highest flat minimum, 9.276c per kWh, set by the Tasmanian Economic Regulator.`],
+  ["Is there a minimum feed-in tariff in NSW?",
+   `No. NSW retailers set their own feed-in tariffs. IPART publishes a benchmark range as a guide, and for 2026-27 that range is 3.4 to 6.5c per kWh, down from 4.8 to 7.3c in 2025-26.`],
+  ["Is there a minimum feed-in tariff in Victoria?",
+   `No. The Essential Services Commission stopped setting a minimum feed-in tariff from 1 July 2025, so Victorian retailers now set their own rates.`],
+  ["What is the feed-in tariff in Queensland?",
+   `In regional Queensland the feed-in tariff for 2026-27 is 6.006c per kWh, set by the Queensland Competition Authority and paid by Ergon Energy Retail. In south-east Queensland there is no set rate, and each retailer sets its own.`],
+  ["What does Synergy pay for solar exports in WA?",
+   `Under the Distributed Energy Buyback Scheme, Synergy pays 10c per kWh for power exported between 3pm and 9pm and 2c per kWh at other times, on the first 50 kWh exported each day.`],
+  ["Why are feed-in tariffs falling?",
+   `Feed-in tariffs follow the wholesale price of electricity in the middle of the day, and so much rooftop solar now exports at that time that the midday price has fallen. IPART lowered its 2026-27 NSW benchmark because it expects lower wholesale prices at the times solar is exported.`],
+  ["Is a low feed-in tariff a reason to add a battery?",
+   `Often, yes. Power you store and use in the evening saves you the full usage rate, usually several times what exporting it would earn. Where evening exports pay more, as in WA and the NT between 3pm and 9pm, a battery can also export at the higher rate.`]
+];
 // Guide articles. Each html() gets the rebate maths so figures stay in step with rebates.js.
 // Answer-first questions for Queensland. Each answer opens with the fact, so search engines and
 // AI assistants can quote it as it stands. The same list feeds the page and its FAQPage data.
@@ -166,11 +186,11 @@ export const guides = [
 <ul>
 <li><b>Panels and inverter.</b> Premium panels, microinverters or optimisers can add 20 to 30% over a standard system.</li>
 <li><b>Your roof.</b> Two-storey, steep, tiled or multi-direction roofs take longer to install.</li>
-<li><b>Switchboard and meter.</b> An old switchboard may need upgrading, and your retailer arranges a solar-ready meter.</li>
+<li><b>Switchboard and meter.</b> An old switchboard may need upgrading (<a href="${L("guides/do-i-need-a-switchboard-upgrade/")}">how to tell</a>), and your retailer arranges a solar-ready meter.</li>
 <li><b>Network rules.</b> Your electricity network may limit how much you can export, which changes the best system size.</li>
 </ul>
 <h2>Is a bigger system worth it?</h2>
-<p>Extra panels are cheap per kW, but exported power earns a low feed-in tariff. Size the system to your daytime use plus any battery you plan to charge. Try the <a href="${L("tools/solar-savings-calculator/")}">savings calculator</a> or <a href="${L("rebate-quiz/")}">see the rebate for your postcode</a>.</p>`;
+<p>Extra panels are cheap per kW, but exported power earns a low <a href="${L("guides/solar-feed-in-tariffs-by-state/")}">feed-in tariff</a>. Size the system to your daytime use plus any battery you plan to charge. Try the <a href="${L("tools/solar-savings-calculator/")}">savings calculator</a> or <a href="${L("rebate-quiz/")}">see the rebate for your postcode</a>.</p>`;
     }
   },
   {
@@ -324,13 +344,63 @@ ${rows.map(([k, x, y]) => `<tr><td>${k} kWh</td><td class="num mono">${money(x)}
       return `
 <p>A battery stores the solar you'd otherwise export for a few cents, and lets you use it in the evening instead of buying power at full price. Whether that pays off depends on your household more than on the battery.</p>
 <h2>A battery tends to pay off when</h2>
-<ul><li>You use a lot of power after the sun goes down: cooking, air conditioning, pool pumps, an electric car.</li><li>Your feed-in tariff is low, so exporting earns little.</li><li>You're on a time-of-use plan with expensive evening rates.</li><li>You can join a virtual power plant that pays you, or you're in WA where joining one unlocks the state rebate.</li></ul>
+<ul><li>You use a lot of power after the sun goes down: cooking, air conditioning, pool pumps, an electric car.</li><li>Your feed-in tariff is low, so exporting earns little. See <a href="${L("guides/solar-feed-in-tariffs-by-state/")}">feed-in tariffs by state</a>.</li><li>You're on a time-of-use plan with expensive evening rates.</li><li>You can join a virtual power plant that pays you, or you're in WA where joining one unlocks the state rebate.</li></ul>
 <h2>You might wait when</h2>
 <ul><li>Your evening use is small, or someone is home using solar during the day.</li><li>Your solar system is small and has little left over to store.</li><li>Your switchboard needs an upgrade that adds a lot to the price. Ask the installer.</li></ul>
 <h2>Sizing it</h2>
 <p>Size the battery to your evening and overnight use, not to the biggest rebate. Because of the tiers, kWh above 14 earn 60% of the rate and above 28 only 15%. A 13.5 kWh battery currently attracts about <b class="mono">${money(r)}</b> in federal rebate.</p>
 <p>Try the <a href="${L("tools/solar-savings-calculator/")}">savings calculator</a> with and without a battery to see the difference for your bill.</p>`;
     }
+  },
+  {
+    slug: "solar-feed-in-tariffs-by-state",
+    short: "Feed-in tariffs by state",
+    title: "Solar feed-in tariffs by state, 2026-27",
+    seoTitle: "Solar Feed-in Tariffs by State 2026-27 (Australia)",
+    description: "What each state pays for the solar you export from 1 July 2026, who sets it, and why the feed-in tariff now matters less than using your own power.",
+    sources: ["fitNsw", "fitVic", "fitQld", "fitTas", "fitWa", "fitNt", "energyMadeEasy"],
+    faq: fitFaq,
+    html: ({ R, money, L }) => {
+      const rows = feedInTariffs.rows.map((r) => `<tr><td>${r.state}</td><td>${r.rate}</td><td>${r.who}</td></tr>`).join("");
+      return `
+<p class="lead-sm"><b>Short answer:</b> most Australian solar exports now earn somewhere between 0 and 10 cents per kWh. Only Tasmania (9.276c), regional Queensland (6.006c), WA and the NT have a rate set by a regulator or the government for ${feedInTariffs.period}. In NSW, Victoria, south-east Queensland, SA and the ACT each retailer sets its own rate.</p>
+<h2>Feed-in tariffs in each state</h2>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>Rate (c/kWh)</th><th>Who sets it</th></tr></thead><tbody>${rows}</tbody></table></div>
+<p class="small muted">For ${feedInTariffs.period}, checked ${feedInTariffs.asAt} against the sources below. Retailer offers change often, so compare current plans on Energy Made Easy (or Victorian Energy Compare in Victoria).</p>
+${fitFaq({ R, money }).map(([q, a]) => `<h2>${q}</h2><p>${a}</p>`).join("\n")}
+<h2>What this means for a new system</h2>
+<p>Size solar to your daytime use, plus whatever a battery will store. Exporting the rest is a small bonus, not the reason to buy. Try the <a href="${L("tools/solar-savings-calculator/")}">savings calculator</a>, read <a href="${L("guides/is-a-battery-worth-it/")}">whether a battery is worth it</a>, or <a href="${L("rebate-quiz/")}">see the rebate for your postcode</a>.</p>`;
+    }
+  },
+  {
+    slug: "do-i-need-a-switchboard-upgrade",
+    short: "Switchboard upgrades",
+    title: "Do I need a switchboard upgrade for solar or a battery?",
+    seoTitle: "Switchboard Upgrade for Solar or a Battery: Do You Need One?",
+    description: "The signs your switchboard will need work before solar or a battery goes in, what it typically costs and how to make sure it's on the quote.",
+    sources: ["switchNsw", "switchQld"],
+    html: ({ L }) => `
+<p class="lead-sm"><b>Short answer:</b> you probably need a switchboard upgrade if your board still has old ceramic fuses, has no safety switches, or has no room for the extra breakers solar and a battery need. The NSW Government puts a typical upgrade at $1,500 to $4,000. Only a licensed electrician can tell you for sure, so ask for it to be checked at the site inspection and priced on the quote.</p>
+<h2>Signs your switchboard will need work</h2>
+<ul>
+<li><b>Ceramic fuses.</b> Old screw-in or wire fuses instead of switch-style circuit breakers.</li>
+<li><b>No safety switches.</b> A safety switch (RCD) has a "Test" or "T" button. Many older homes have none, or only on the power points.</li>
+<li><b>No spare space.</b> Solar adds at least one breaker and a battery adds more, plus isolators. A full board has nowhere to put them.</li>
+<li><b>Asbestos backing.</b> Older boards are often mounted on a panel containing asbestos, which has to be handled by a licensed removalist.</li>
+<li><b>Signs of heat or damage.</b> Scorch marks, a burning smell, buzzing or breakers that trip often. Get these checked whether or not you go solar.</li>
+</ul>
+<h2>Why new solar or battery work can trigger an upgrade</h2>
+<p>Any new electrical work has to meet the current wiring rules. In Queensland, for example, safety switches have been compulsory on power and lighting circuits in new homes since 2000, and homes whose wiring is extended need the same protection. When an electrician adds the solar or battery circuits, an old board without that protection often has to be brought up to standard first.</p>
+<h2>What it costs</h2>
+<p>The NSW Government's household upgrade guide puts a switchboard upgrade at about <b>$1,500 to $4,000</b>, depending on the size of the board and the work involved. Asbestos removal, a move of the board, or a change from single-phase to three-phase power cost extra.</p>
+<h2>Make sure it's on the quote</h2>
+<ul>
+<li>Ask the installer to photograph and assess your switchboard before quoting, not on install day.</li>
+<li>Get any switchboard work listed as its own line, with a fixed price.</li>
+<li>Ask whether the price covers asbestos handling if the board has an old backing panel.</li>
+<li>Be wary of a quote that says "switchboard upgrade may be required" with no price. That is where surprise costs come from.</li>
+</ul>
+<p>More on what a good quote shows: <a href="${L("guides/how-to-read-a-solar-quote/")}">how to read a solar quote</a>. Or <a href="${L("rebate-quiz/")}">see the rebate for your postcode</a>.</p>`
   },
   ...stateGuides
 ];
