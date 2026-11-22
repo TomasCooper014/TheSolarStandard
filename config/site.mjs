@@ -21,7 +21,8 @@ export const brand = {
   // Official social profiles. Linked in the footer and listed as sameAs in structured data so
   // Google can confirm the brand. Use each profile's permanent address, not a share link.
   social: {
-    facebook: "https://www.facebook.com/profile.php?id=61595691315785"
+    facebook: "https://www.facebook.com/profile.php?id=61595691315785",
+    instagram: "https://www.instagram.com/thesolarstandardau/"
   },
   leadValues: { A: 450, B: 250, C: 60, R: 0 },
   // Named reviewer shown on guides and rebate pages, and in structured data. AI search and
