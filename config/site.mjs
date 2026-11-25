@@ -54,6 +54,8 @@ export const officialSources = {
   batteries: { title: "Clean Energy Regulator: Cheaper Home Batteries changes from 1 May 2026", url: "https://cer.gov.au/node/5406" },
   qldRenters: { title: "Queensland Government: Supercharged Solar for Renters", url: "https://www.qld.gov.au/solar-for-renters" },
   qldRentersRules: { title: "Queensland Treasury: Supercharged Solar for Renters eligibility", url: "https://www.treasury.qld.gov.au/policies-and-programs/energy/supercharged-solar-for-renters/" },
+  vicSolarHomes: { title: "Solar Victoria: Solar panel (PV) rebate", url: "https://www.solar.vic.gov.au/solar-panel-rebate" },
+  vicBatteryLoans: { title: "Solar Victoria: Solar battery loans (closed)", url: "https://www.solar.vic.gov.au/solar-battery-loan" },
   saReps: { title: "SA Government: Retailer Energy Productivity Scheme (REPS)", url: "https://www.energymining.sa.gov.au/consumers/energy-advisory-service/energy-saving-rebates" },
   // Market price sources for the cost guides (not official; checked 13 November 2026)
   priceGridly: { title: "Gridly: Solar panel cost Australia 2026", url: "https://www.gridly.com.au/blog/solar-panel-cost-australia-2026" },
@@ -103,9 +105,10 @@ export const stateInfo = {
     ]
   },
   VIC: {
-    slug: "vic", zone: 4, short: "Victoria adds up to $1,400 towards solar panels through Solar Homes for eligible owner-occupiers with household income under $150,000.", city: "Melbourne", note: "Victoria is STC zone 4, so solar earns slightly fewer certificates per kW than in the northern states.",
+    slug: "vic", zone: 4, short: "Victoria adds up to $1,400 towards solar panels through Solar Homes for eligible owner-occupiers with household income under $150,000. There is no Victorian battery rebate, so batteries get the federal rebate only.", city: "Melbourne", note: "Victoria is STC zone 4, so solar earns slightly fewer certificates per kW than in the northern states.",
     extras: [
-      { title: "Solar Homes panel rebate: up to $1,400", body: "Solar Victoria pays up to $1,400 towards solar panels, with an optional interest-free loan of the same amount repaid over four years. From 1 July 2026 the combined household income cap is $150,000. The address must not have had an earlier Solar Homes panel or battery rebate." }
+      { title: "Solar Homes panel rebate: up to $1,400", body: "Solar Victoria pays up to half the panel cost after the STC discount, to a maximum of $1,400, with an optional interest-free loan of the same amount repaid over four years. From 1 July 2026 the combined household taxable income of all owners must be under $150,000, and the property must be worth under $3 million. The address must not have had an earlier Solar Homes panel or battery rebate, or a solar system installed in the last 10 years. Solar Victoria says panel support moves into the Victorian Energy Upgrades program from 1 July 2027. Check the current rules at solar.vic.gov.au." },
+      { title: "Is there a Victorian battery rebate?", body: "No. Victoria has no state battery rebate at present, and Solar Victoria is no longer taking applications for its interest-free battery loans. Victorian homes get the federal Cheaper Home Batteries rebate, which is the same in every state and comes off the installer's price. That rebate doesn't end suddenly: it steps down every 1 January and 1 July until 2030, and the install date sets the rate." }
     ]
   },
   QLD: {
