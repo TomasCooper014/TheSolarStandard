@@ -71,6 +71,9 @@ p { margin: 0; }
 .nav { display: flex; gap: 1.1rem; flex-wrap: wrap; align-items: center; }
 .nav a { color: var(--ink); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
 .nav a:hover { color: var(--teal); }
+/* The header quiz button sits inside .nav, whose link colour would otherwise win over .btn
+   (dark text on teal, and teal-on-teal on hover). Keep the button's own text colour. */
+.nav a.btn, .nav a.btn:hover { color: var(--teal-ink); }
 .site-foot { margin-top: 4rem; border-top: 1px solid var(--line); background: var(--surface); }
 .site-foot .wrap { padding-block: 2.5rem; display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); font-size: var(--step--1); }
 .site-foot h3 { font-size: 0.95rem; margin-bottom: 0.5rem; }
@@ -136,7 +139,7 @@ p { margin: 0; }
   width: 100%; min-height: 48px; padding: 0.6rem 0.8rem; border-radius: 8px; border: 1.5px solid var(--line);
   background: var(--paper); color: var(--ink); font: 400 1rem var(--body);
 }
-.field input:focus, .field select:focus { border-color: var(--teal); outline: none; box-shadow: 0 0 0 3px var(--teal-soft); }
+.field input:focus, .field select:focus { border-color: var(--teal); outline: none; box-shadow: 0 0 0 3px var(--teal-soft), 0 0 0 5px var(--teal); }
 .field .err { color: var(--danger); font-size: 0.85rem; min-height: 0; }
 .field.bad input { border-color: var(--danger); }
 .grid-2 { display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
