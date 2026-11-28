@@ -148,7 +148,7 @@ export const guides = [
 <div class="table-wrap"><table><thead><tr><th>Usable size</th><th>Federal rebate if installed by ${R.longDate(now.to)}</th><th>Typical installed price after the rebate</th><th>Rebate lost from ${step}</th></tr></thead><tbody>${rows}</tbody></table></div>
 <p class="small muted">Prices are market ranges as at ${marketPrices.asAt} from the sources below, including installation and GST. Rebates use ${R.stcLabel} per certificate. Your quote depends on the brand, your switchboard and whether you want blackout backup.</p>
 <h2>What happens to prices on ${step}</h2>
-<p>The federal rebate drops from ${now.factor} to ${next.factor} certificates per kWh, so the same battery costs more by the amount in the last column. The rate is set by the install date, so a battery signed now but installed after ${R.longDate(now.to)} gets the lower rebate. See <a href="${L("guides/battery-rebate-2027/")}">the battery rebate change, explained</a>.</p>
+<p>The federal rebate drops from ${now.factor} to ${next.factor} certificates per kWh, so the same battery costs more by the amount in the last column. The rate is set by the install date, so a battery signed now but installed after ${R.longDate(now.to)} gets the lower rebate. See <a href="${L("guides/battery-rebate-2027/")}">the battery rebate change, explained</a>, or try your own size in the <a href="${L("tools/battery-rebate-calculator/")}">battery rebate calculator</a>.</p>
 <h2>What moves the price</h2>
 <ul>
 <li><b>With solar or added later.</b> Installing the battery with new panels shares one inverter and one install day. Adding it to existing solar often needs a second inverter or a hybrid swap.</li>
@@ -171,8 +171,8 @@ export const guides = [
     html: ({ R, money, L }) => {
       const year = Math.min(Math.max(R.yearOf(R.ymd()), 2026), 2030), next = Math.min(year + 1, 2030);
       const sizes = marketPrices.solar.map((s) => `<tr><td>${s.kw} kW</td><td>${R.solarStcs(s.kw, 3, year)} STCs, ${money(R.solarStcs(s.kw, 3, year) * R.stcPrice)}</td><td>${money(s.low)} to ${money(s.high)}</td></tr>`).join("");
-      const cities = [["Darwin", 2], ["Brisbane", 3], ["Sydney", 3], ["Perth", 3], ["Adelaide", 3], ["Canberra", 3], ["Melbourne", 4], ["Hobart", 4]];
-      const cityRows = cities.map(([c, z]) => `<tr><td>${c}</td><td>${z}</td><td>${money(R.solarStcs(6.6, z, year) * R.stcPrice)}</td><td>${money(R.solarStcs(6.6, z, next) * R.stcPrice)}</td></tr>`).join("");
+      const cities = [["Darwin", 2, "nt"], ["Brisbane", 3, "qld"], ["Sydney", 3, "nsw"], ["Perth", 3, "wa"], ["Adelaide", 3, "sa"], ["Canberra", 3, "act"], ["Melbourne", 4, "vic"], ["Hobart", 4, "tas"]];
+      const cityRows = cities.map(([c, z, st]) => `<tr><td><a href="${L("rebates/" + st + "/")}">${c}</a></td><td>${z}</td><td>${money(R.solarStcs(6.6, z, year) * R.stcPrice)}</td><td>${money(R.solarStcs(6.6, z, next) * R.stcPrice)}</td></tr>`).join("");
       return `
 <p class="lead-sm"><b>Short answer:</b> a 6.6 kW solar system usually costs about ${money(marketPrices.solar[0].low)} to ${money(marketPrices.solar[0].high)} installed in ${year}, after the federal STC rebate. A 10 kW system usually costs about ${money(marketPrices.solar[1].low)} to ${money(marketPrices.solar[1].high)}. The rebate is already taken off those prices.</p>
 <h2>Typical solar prices after the rebate</h2>
@@ -294,7 +294,7 @@ ${qldFaq({ R, money }).map(([q, a]) => `<h2>${q}</h2><p>${a}</p>`).join("\n")}
     title: "What changes to the battery rebate on 1 January 2027",
     description: "The rate drops from 6.8 to 5.7 certificates per kWh. Here's what that's worth and what to ignore.",
     sources: ["batteries"],
-    html: ({ R, money }) => {
+    html: ({ R, money, L }) => {
       const a = R.batteryWindows[0].factor, b = R.batteryWindows[1].factor;
       const rows = [10, 13.5, 20].map((k) => [k, R.batteryStcs(k, a) * R.stcPrice, R.batteryStcs(k, b) * R.stcPrice]);
       return `
@@ -309,7 +309,7 @@ ${rows.map(([k, x, y]) => `<tr><td>${k} kWh</td><td class="num mono">${money(x)}
 <h2>Real deadlines and made-up ones</h2>
 <p>The program steps down on 1 January and 1 July. A salesperson who says "the rebate drops on 1 January" is telling you something true. One who says the rebate <i>ends</i>, or names any other date, isn't. The Clean Energy Regulator has warned retailers that misleading claims get reported to fair trading regulators.</p>
 <h2>Should you rush?</h2>
-<p>For a typical battery the January drop is a few hundred dollars, a small share of the job. It's worth acting on if you were going to buy anyway. It isn't worth signing a quote you haven't checked.</p>`;
+<p>For a typical battery the January drop is a few hundred dollars, a small share of the job. It's worth acting on if you were going to buy anyway. It isn't worth signing a quote you haven't checked: see <a href="${L("guides/how-to-read-a-solar-quote/")}">how to read a solar quote</a>. To see the drop for your battery size, use the <a href="${L("tools/battery-rebate-calculator/")}">battery rebate calculator</a> or <a href="${L("rebate-quiz/")}">check your rebate by postcode</a>.</p>`;
     }
   },
   {
@@ -317,7 +317,7 @@ ${rows.map(([k, x, y]) => `<tr><td>${k} kWh</td><td class="num mono">${money(x)}
     short: "Reading a solar quote",
     title: "How to read a solar quote",
     description: "The seven things a good quote shows, and what to ask when one is missing.",
-    html: () => `
+    html: ({ L }) => `
 <p>Two quotes for the "same" system can be thousands of dollars apart for good reasons, or bad ones. These are the things a quote should spell out.</p>
 <ol>
 <li><b>Itemised price.</b> System price, STC discount, any state rebate and the amount you pay, each on its own line.</li>
@@ -331,7 +331,8 @@ ${rows.map(([k, x, y]) => `<tr><td>${k} kWh</td><td class="num mono">${money(x)}
 <h2>Questions worth asking</h2>
 <ul><li>Who will physically do the install: your own staff or a subcontractor?</li><li>How long has the business traded under its current ABN?</li><li>What happens if a panel or the inverter fails in year six?</li><li>Is the price fixed if the install date moves into next year?</li></ul>
 <h2>Your rights</h2>
-<p>If a salesperson sells to you at your home, the Australian Consumer Law gives you a 10 business day cooling-off period for most unsolicited agreements. Take the time to read the quote.</p>`
+<p>If a salesperson sells to you at your home, the Australian Consumer Law gives you a 10 business day cooling-off period for most unsolicited agreements. Take the time to read the quote.</p>
+<p>To check the numbers, compare them with typical <a href="${L("guides/solar-panel-cost/")}">solar panel prices</a> and <a href="${L("guides/solar-battery-price/")}">battery prices after the rebate</a>, and make sure any <a href="${L("guides/do-i-need-a-switchboard-upgrade/")}">switchboard upgrade</a> is priced. Or <a href="${L("rebate-quiz/")}">see the rebate for your postcode</a>.</p>`
   },
   {
     slug: "is-a-battery-worth-it",

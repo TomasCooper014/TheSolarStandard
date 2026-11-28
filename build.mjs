@@ -218,7 +218,8 @@ for (const code of CODES) {
       <div class="callout">The rebate is set by the <b>install date</b>, not the date you sign. A battery signed in December but installed in January gets the lower 2027 rate.</div>
       <h2>Common questions</h2><div class="faq">${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div>
       ${faqLink ? `<p>More detail: <a href="${L(faqLink[0])}">${faqLink[1]}</a>.</p>` : ""}
-      <h2>Related guides</h2><ul><li><a href="${L("guides/solar-battery-price/")}">Solar battery prices in 2026</a></li><li><a href="${L("guides/solar-panel-cost/")}">How much solar panels cost in 2026</a></li><li><a href="${L("guides/how-to-choose-a-home-battery/")}">How to choose a home battery</a></li><li><a href="${L("guides/solar-installation-process/")}">Installation, step by step</a></li></ul>
+      <h2>Related guides</h2><ul><li><a href="${L("guides/solar-battery-price/")}">Solar battery prices in 2026</a></li><li><a href="${L("guides/solar-panel-cost/")}">How much solar panels cost in 2026</a></li><li><a href="${L("guides/battery-rebate-2027/")}">What changes to the battery rebate on 1 January 2027</a></li><li><a href="${L("guides/solar-feed-in-tariffs-by-state/")}">Solar feed-in tariffs by state</a></li><li><a href="${L("guides/how-to-choose-a-home-battery/")}">How to choose a home battery</a></li><li><a href="${L("guides/solar-installation-process/")}">Installation, step by step</a></li></ul>
+      <p>Work out your own figures with the <a href="${L("tools/stc-calculator/")}">STC solar rebate calculator</a> or the <a href="${L("tools/battery-rebate-calculator/")}">battery rebate calculator</a>.</p>
       ${sourcesBlock(stateSources)}
       <p class="small muted">Figures as at ${R.asAt}, with certificates valued at ${R.stcLabel}. Certificate values move with the market. Check current program rules before you sign.</p>
     </div><aside class="article-aside"><p class="eyebrow">Your rebate</p>${quizCard(`data-state="${code}"`)}</aside></div></div>`
@@ -232,6 +233,8 @@ page("tools/", (L) => layout({
 }, L));
 
 const calcCta = (L) => `<div class="callout">Want this checked against your actual roof? <a href="${L("rebate-quiz/")}">Get a free quote</a> from our installation partner.</div>`;
+// Related reading under each calculator, so tools pass visitors (and link equity) on to guides and state pages.
+const calcRelated = (L, links) => `<p class="small"><b>Related:</b> ${links.map(([href, text]) => `<a href="${L(href)}">${text}</a>`).join(" · ")}</p>`;
 
 page("tools/stc-calculator/", (L) => layout({
   path: "tools/stc-calculator/", title: `STC Rebate Calculator | ${brand.name}`, description: "Work out how many STCs your solar system creates and what they're worth, by postcode and system size.",
@@ -243,7 +246,7 @@ page("tools/stc-calculator/", (L) => layout({
     <p class="small muted">Sample values loaded: a 6.6 kW system in Brisbane.</p></div>
   <div class="stack"><div class="bigfigs"><div class="fig"><div class="k">Rebate</div><div class="v" data-out="value"></div></div><div class="fig"><div class="k">Certificates</div><div class="v" data-out="stcs" style="font-size:1.1rem"></div></div><div class="fig"><div class="k"><span data-out="where"></span></div><div class="v" data-out="zone" style="font-size:1.1rem"></div></div></div>
     <p class="mono small muted" data-out="working"></p>
-    <p class="small">The zone is estimated from your postcode. The Clean Energy Regulator sets the exact zone, and your installer's quote uses it. Certificate prices move; this uses ${R.stcLabel}.</p>${calcCta(L)}</div></div></div>`
+    <p class="small">The zone is estimated from your postcode. The Clean Energy Regulator sets the exact zone, and your installer's quote uses it. Certificate prices move; this uses ${R.stcLabel}.</p>${calcCta(L)}${calcRelated(L, [["guides/how-solar-rebates-work/", "How solar rebates work"], ["guides/solar-panel-cost/", "Solar panel cost in 2026"], ["rebates/qld/", "Queensland solar rebates"], ["rebates/", "Rebates by state"]])}</div></div></div>`
 }, L));
 
 page("tools/battery-rebate-calculator/", (L) => layout({
@@ -256,7 +259,7 @@ page("tools/battery-rebate-calculator/", (L) => layout({
     <p class="small muted">Sample values loaded: a 13.5 kWh battery outside WA.</p></div>
   <div class="stack"><div class="bigfigs"><div class="fig"><div class="k">Total rebate</div><div class="v" data-out="total"></div></div><div class="fig"><div class="k">Federal</div><div class="v" data-out="fed"></div></div><div class="fig"><div class="k">WA scheme</div><div class="v" data-out="state"></div></div></div>
     <p class="small"><b data-out="perkwh"></b> of capacity.</p><p class="mono small muted" data-out="working"></p>
-    <p class="small">The WA scheme needs the battery to join a virtual power plant. Rates after June 2027 aren't set in these figures; they step down every six months until 2030.</p>${calcCta(L)}</div></div></div>`
+    <p class="small">The WA scheme needs the battery to join a virtual power plant. Rates after June 2027 aren't set in these figures; they step down every six months until 2030.</p>${calcCta(L)}${calcRelated(L, [["guides/battery-rebate-2027/", "The 1 January 2027 battery rebate change"], ["guides/solar-battery-price/", "Battery prices after the rebate"], ["guides/how-to-choose-a-home-battery/", "How to choose a home battery"], ["rebates/wa/", "WA battery rebates"]])}</div></div></div>`
 }, L));
 
 page("tools/solar-savings-calculator/", (L) => layout({
@@ -270,7 +273,7 @@ page("tools/solar-savings-calculator/", (L) => layout({
     <div class="grid-2"><div class="field"><label for="sav-tariff">Your usage rate (c/kWh)</label><input id="sav-tariff" inputmode="decimal" value="32"></div><div class="field"><label for="sav-fit">Feed-in tariff (c/kWh)</label><input id="sav-fit" inputmode="decimal" value="5"></div></div>
     <p class="small muted">Sample values loaded: a $650 quarterly bill in Queensland.</p></div>
   <div class="stack"><div class="bigfigs"><div class="fig"><div class="k">Yearly saving</div><div class="v" data-out="saving"></div></div><div class="fig"><div class="k">Payback</div><div class="v" data-out="payback"></div></div><div class="fig"><div class="k">Yearly output</div><div class="v" data-out="gen" style="font-size:1.1rem"></div></div><div class="fig"><div class="k">Cost after rebates</div><div class="v" data-out="cost" style="font-size:1.1rem"></div></div></div>
-    <p class="small">Assumptions: about $1,000 per kW for solar and $1,050 per kWh for a battery before rebates, a $1.10 daily supply charge, and you use 30% of your solar during the day (70% with a battery). Change the rates above to match your bill.</p>${calcCta(L)}</div></div></div>`
+    <p class="small">Assumptions: about $1,000 per kW for solar and $1,050 per kWh for a battery before rebates, a $1.10 daily supply charge, and you use 30% of your solar during the day (70% with a battery). Change the rates above to match your bill.</p>${calcCta(L)}${calcRelated(L, [["guides/is-a-battery-worth-it/", "Is a home battery worth it?"], ["guides/solar-feed-in-tariffs-by-state/", "Feed-in tariffs by state"], ["guides/solar-panel-cost/", "Solar panel cost in 2026"]])}</div></div></div>`
 }, L));
 
 page("guides/", (L) => layout({
@@ -279,8 +282,11 @@ page("guides/", (L) => layout({
   <div class="tiles">${guides.map((g) => `<a class="tile" href="${L("guides/" + g.slug + "/")}"><h3>${esc(g.title)}</h3><p class="muted small">${esc(g.description)}</p></a>`).join("")}</div></div>`
 }, L));
 
+// Every general guide links to each state's rebate page with descriptive anchor text.
+const stateLinks = (L) => `<h2>Rebates where you live</h2><p>The federal rebates are the same everywhere, but state extras and STC zones differ. See the figures for your state:</p><ul>${CODES.map((c) => `<li><a href="${L("rebates/" + stateInfo[c].slug + "/")}">${R.states[c]} solar and battery rebates</a></li>`).join("")}</ul>`;
+
 for (const g of guides) {
-  const gl = ld({ "@context": "https://schema.org", "@graph": [
+  const gl =ld({ "@context": "https://schema.org", "@graph": [
     { "@type": "Article", headline: g.title, description: g.description, datePublished: g.published || brand.published, dateModified: MODIFIED, author: { "@id": brand.domain + "/#org" }, publisher: { "@id": brand.domain + "/#org" }, reviewedBy: reviewer, mainEntityOfPage: brand.domain + `/guides/${g.slug}/`, inLanguage: "en-AU" },
     ...(g.faq ? [{ "@type": "FAQPage", mainEntity: g.faq({ R, money }).map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a.replace(/<[^>]+>/g, "") } })) }] : []),
     crumbsLd([["Home", ""], ["Guides", "guides/"], [g.short, `guides/${g.slug}/`]])
@@ -289,7 +295,7 @@ for (const g of guides) {
     path: `guides/${g.slug}/`, title: `${g.seoTitle || g.title} | ${brand.name}`, description: g.description, jsonld: gl,
     body: `<div class="wrap"><div class="article"><article class="article-body">
       <p class="crumbs"><a href="${L("")}">Home</a> / <a href="${L("guides/")}">Guides</a></p>
-      <h1>${esc(g.title)}</h1>${reviewedLine()}${g.html({ R, money, L })}${sourcesBlock(g.sources)}
+      <h1>${esc(g.title)}</h1>${reviewedLine()}${g.html({ R, money, L })}${g.faq ? "" : stateLinks(L)}${sourcesBlock(g.sources)}
     </article><aside class="article-aside"><p class="eyebrow">Your rebate</p>${quizCard()}</aside></div></div>`
   }, L));
 }
